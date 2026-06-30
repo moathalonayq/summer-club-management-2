@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+
+  <section class="app-section active">
+    <h2 class="section-title">بوابة ولي الأمر</h2>
+    <p class="section-desc">ابحث باسم الطالب لمتابعة أدائه وحضوره وترتيبه في جميع البرامج</p>
+
+    <div class="search-box-wrapper">
+      <input type="text" id="guardianSearchInput" class="search-input" placeholder="اكتب اسم الطالب للبحث...">
+      <div class="search-results" id="guardianSearchResults"></div>
+    </div>
+
+    <div id="guardianDetails"></div>
+  </section>
+
+<%- include('partials/footer') %>
+
+<script src="/js/guardian.js"></script>

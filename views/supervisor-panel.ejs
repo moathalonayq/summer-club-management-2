@@ -1,0 +1,178 @@
+<%- include('partials/header') %>
+
+  <section class="app-section active">
+    <div class="supervisor-panel-header">
+      <h3 class="panel-welcome">مرحباً بك أيها المشرف</h3>
+      <form method="POST" action="/supervisor/logout">
+        <button type="submit" class="btn btn-outline btn-small">تسجيل الخروج</button>
+      </form>
+    </div>
+
+    <script type="application/json" id="studentsDataJson"><%- JSON.stringify(students.map(s => ({ id: s.id, name: s.name, group: s.group_name }))) %></script>
+
+    <div class="panel-grid">
+      <!-- نموذج إضافة / خصم النقاط -->
+      <div class="panel-box">
+        <h4>إضافة أو خصم نقاط لطالب</h4>
+        <form id="pointsForm">
+          <div class="form-group">
+            <label for="pointsStudentSearch">اختر الطالب</label>
+            <div class="search-box-wrapper" style="margin-bottom:0;">
+              <input type="text" id="pointsStudentSearch" class="search-input" placeholder="اكتب اسم الطالب..." autocomplete="off">
+              <div class="search-results" id="pointsStudentResults"></div>
+            </div>
+            <input type="hidden" id="pointsStudentSelect">
+          </div>
+          <div class="form-group">
+            <label for="programSelect">اللجنة / البرنامج</label>
+            <select id="programSelect" class="form-select">
+              <option value="knowledge">البرنامج المعرفي</option>
+              <option value="sports">البرنامج الرياضي</option>
+              <option value="cultural">البرنامج الثقافي</option>
+              <option value="initiative">مبادرة / إنجاز مميز</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pointsAmount">عدد النقاط</label>
+            <input type="number" id="pointsAmount" class="form-input" min="1" placeholder="مثال: 5">
+          </div>
+          <div class="form-group">
+            <label for="pointsReason">السبب / الوصف (اختياري)</label>
+            <input type="text" id="pointsReason" class="form-input" placeholder="مثال: تفوق في الاختبار الشهري">
+          </div>
+
+          <div class="form-group" style="display:flex; gap:10px;">
+            <button type="button" id="addPointsBtn" class="btn btn-gold" style="flex:1;">إضافة النقاط</button>
+            <button type="button" id="subtractPointsBtn" class="btn btn-danger-outline" style="flex:1;">خصم النقاط</button>
+          </div>
+          <p class="form-msg" id="pointsMsg"></p>
+        </form>
+      </div>
+
+      <!-- نموذج تسجيل الحضور اليدوي -->
+      <div class="panel-box">
+        <h4>تسجيل الحضور اليدوي</h4>
+        <form id="attendanceForm">
+          <div class="form-group">
+            <label for="attendanceStudentSearch">اختر الطالب</label>
+            <div class="search-box-wrapper" style="margin-bottom:0;">
+              <input type="text" id="attendanceStudentSearch" class="search-input" placeholder="اكتب اسم الطالب..." autocomplete="off">
+              <div class="search-results" id="attendanceStudentResults"></div>
+            </div>
+            <input type="hidden" id="attendanceStudentSelect">
+          </div>
+          <div class="form-group">
+            <label for="attendanceSessionSelect">الجلسة</label>
+            <select id="attendanceSessionSelect" class="form-select">
+              <% sessions.forEach(sess => { %>
+                <option value="<%= sess.id %>">
+                  الأسبوع <%= sess.week_number %> — <%= sess.day_name %> (<%= sess.session_date %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="attendanceStatusSelect">الحالة</label>
+            <select id="attendanceStatusSelect" class="form-select">
+              <option value="حاضر">حاضر</option>
+              <option value="متأخر">متأخر</option>
+              <option value="غايب">غايب</option>
+            </select>
+          </div>
+          <button type="button" id="attendanceSubmitBtn" class="btn btn-primary">تسجيل الحضور</button>
+          <p class="form-msg" id="attendanceMsg"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         تقييم متطلبات البرنامج المعرفي
+         الطالب يُخبر المشرف شفهياً/شخصياً بإنجاز متطلب معين،
+         والمشرف هو من يحدّد ذلك هنا (وليس الطالب تلقائياً)
+         ========================================================= -->
+    <div class="panel-box knowledge-tasks-box">
+      <h4>تقييم متطلبات البرنامج المعرفي</h4>
+      <div class="form-group">
+        <label for="tasksStudentSearch">اختر الطالب</label>
+        <div class="search-box-wrapper" style="margin-bottom:0;">
+          <input type="text" id="tasksStudentSearch" class="search-input" placeholder="اكتب اسم الطالب..." autocomplete="off">
+          <div class="search-results" id="tasksStudentResults"></div>
+        </div>
+        <input type="hidden" id="tasksStudentSelect">
+      </div>
+      <div id="knowledgeTasksList" class="knowledge-tasks-list"></div>
+      <p class="form-msg" id="tasksMsg"></p>
+    </div>
+
+    <!-- =========================================================
+         مسح الباركود لتسجيل الحضور التلقائي
+         ========================================================= -->
+    <div class="scanner-section">
+      <h3 class="scanner-title">مسح باركود الطالب لتسجيل حضوره تلقائياً</h3>
+      <p class="scanner-subtitle">يُسجَّل الحضور تلقائياً لجلسة اليوم (أو أقرب جلسة قادمة)</p>
+
+      <button id="startScanBtn" class="btn btn-gold scanner-btn">تشغيل الكاميرا لمسح الباركود</button>
+
+      <div class="scanner-wrapper hidden" id="scannerWrapper">
+        <video id="scannerVideo"></video>
+        <canvas id="scannerCanvas" class="hidden"></canvas>
+        <p class="scanner-status" id="scannerStatus"></p>
+        <div id="scannerResult"></div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         جدول كل الطلاب + باركود كل طالب
+         ========================================================= -->
+    <h4 class="table-section-title">جميع الطلاب وباركود كل طالب</h4>
+    <div class="data-table-wrapper">
+      <table class="data-table" id="supervisorStudentTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>الاسم</th>
+            <th>المجموعة</th>
+            <th>معرفي</th>
+            <th>رياضي</th>
+            <th>ثقافي</th>
+            <th>الإجمالي</th>
+            <th>الباركود</th>
+          </tr>
+        </thead>
+        <tbody id="supervisorStudentTableBody">
+          <% students.forEach((s, i) => { %>
+            <tr data-student-id="<%= s.id %>" data-student-name="<%= s.name %>">
+              <td><%= i + 1 %></td>
+              <td><%= s.name %></td>
+              <td><%= s.group_name %></td>
+              <td class="cell-knowledge"><%= s.knowledge_points %></td>
+              <td class="cell-sports"><%= s.sports_points %></td>
+              <td class="cell-cultural"><%= s.cultural_points %></td>
+              <td class="cell-total"><strong><%= s.total_points %></strong></td>
+              <td>
+                <button type="button" class="btn-show-barcode" data-barcode="<%= s.barcode %>" data-name="<%= s.name %>">
+                  <%= s.barcode %>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- منطقة عرض/طباعة الباركود المختار -->
+    <div id="barcodeModal" class="barcode-modal hidden">
+      <div class="barcode-modal-content">
+        <button id="closeBarcodeModal" class="btn-close-modal">×</button>
+        <h4 id="barcodeModalName"></h4>
+        <div id="barcodeModalCanvas"></div>
+        <p id="barcodeModalCode" class="barcode-modal-code"></p>
+        <button id="printBarcodeBtn" class="btn btn-outline btn-small">طباعة</button>
+      </div>
+    </div>
+
+  </section>
+
+<%- include('partials/footer') %>
+
+<script src="/js/supervisor.js"></script>

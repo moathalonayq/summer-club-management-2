@@ -1,0 +1,38 @@
+<%
+  // partial: بطاقة مجموعة واحدة كاملة (الترتيب داخل قسمها + جدول أعضائها)
+  // المتغيرات المتوقعة من الصفحة المستدعية: group, index
+  const medalClass = index === 0 ? "medal-gold" : index === 1 ? "medal-silver" : index === 2 ? "medal-bronze" : "";
+%>
+<div class="group-card">
+  <div class="group-card-header <%= medalClass %>">
+    <div class="group-rank-badge"><%= index + 1 %></div>
+    <div>
+      <h3><%= group.name %></h3>
+      <p class="group-sub"><%= group.member_count %> طالب • إجمالي النقاط: <%= group.total_points %> • المتوسط: <%= group.avg_points %></p>
+    </div>
+  </div>
+  <table class="group-table">
+    <thead>
+      <tr>
+        <th>الترتيب</th>
+        <th>اسم الطالب</th>
+        <th>معرفي</th>
+        <th>رياضي</th>
+        <th>ثقافي</th>
+        <th class="col-total">الإجمالي</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% group.members.forEach((s, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><a href="/guardian?student=<%= s.id %>" class="student-link"><%= s.name %></a></td>
+          <td><%= s.knowledge_points %></td>
+          <td><%= s.sports_points %></td>
+          <td><%= s.cultural_points %></td>
+          <td class="col-total"><strong><%= s.total_points %></strong></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

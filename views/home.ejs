@@ -1,0 +1,125 @@
+<%- include('partials/header') %>
+
+  <section class="app-section active">
+
+    <!-- =========================================================
+         نبذة تعريفية عن النادي
+         ========================================================= -->
+    <div class="intro-card">
+      <h2 class="section-title">عن نادي القيروان</h2>
+      <p class="section-desc intro-text">
+        نادي القيروان منصة موسمية تهدف إلى متابعة وتطوير الطلاب عبر برامج معرفية ورياضية وثقافية متكاملة،
+        مع نظام نقاط وحضور يحفّز التميز والمنافسة الإيجابية بين الطلاب والمجموعات طوال الموسم.
+      </p>
+
+      <div class="club-quick-facts">
+        <div class="quick-fact">
+          <span class="quick-fact-value"><%= settings.total_weeks %></span>
+          <span class="quick-fact-label">أسابيع الموسم</span>
+        </div>
+        <div class="quick-fact">
+          <span class="quick-fact-value"><%= settings.days_per_week %></span>
+          <span class="quick-fact-label">أيام النادي أسبوعياً</span>
+        </div>
+        <div class="quick-fact">
+          <span class="quick-fact-value"><%= settings.season_name %></span>
+          <span class="quick-fact-label">الموسم الحالي</span>
+        </div>
+      </div>
+
+      <div class="club-days-row">
+        <% clubDays.forEach((day) => { %>
+          <span class="club-day-chip"><%= day %></span>
+        <% }) %>
+        <span class="club-days-note">يبدأ النادي من 13 يوليو لمدة 3 أسابيع</span>
+      </div>
+    </div>
+
+    <h2 class="section-title">نظرة عامة على الموسم</h2>
+    <p class="section-desc">إحصائية شاملة عن نادي القيروان وأداء الطلاب في جميع البرامج</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value"><%= stats.totalStudents %></div>
+        <div class="stat-label">عدد الطلاب</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-value"><%= stats.totalGroups %></div>
+        <div class="stat-label">عدد المجموعات</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value"><%= stats.attendanceRate %>%</div>
+        <div class="stat-label">نسبة الحضور العامة</div>
+      </div>
+      <div class="stat-card knowledge">
+        <div class="stat-value"><%= stats.totalKnowledge %></div>
+        <div class="stat-label">نقاط البرنامج المعرفي</div>
+      </div>
+      <div class="stat-card sports">
+        <div class="stat-value"><%= stats.totalSports %></div>
+        <div class="stat-label">نقاط البرنامج الرياضي</div>
+      </div>
+      <div class="stat-card cultural">
+        <div class="stat-value"><%= stats.totalCultural %></div>
+        <div class="stat-label">نقاط البرنامج الثقافي</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-value"><%= stats.totalInitiatives %></div>
+        <div class="stat-label">نقاط المبادرات المميزة</div>
+      </div>
+    </div>
+
+    <h3 class="section-title" style="font-size:19px; margin-top:10px;">البرامج الأربعة في النادي</h3>
+    <p class="section-desc">كل طالب يتابَع أداؤه عبر أربع محاور رئيسية طوال الموسم</p>
+
+    <div class="programs-grid">
+      <div class="program-card knowledge">
+        <h3>📘 البرنامج المعرفي</h3>
+        <p>يشمل المتطلبات العلمية والفكرية مثل الحفظ، الدورات، الأبحاث، والاختبارات التحصيلية. يحصل الطالب على نقاط عند إنجاز كل متطلب.</p>
+      </div>
+      <div class="program-card sports">
+        <h3>⚽ البرنامج الرياضي</h3>
+        <p>يغطي الأنشطة البدنية والمشاركات الرياضية داخل النادي وخارجه، وتُمنح النقاط حسب المشاركة والإنجاز.</p>
+      </div>
+      <div class="program-card cultural">
+        <h3>🎭 البرنامج الثقافي</h3>
+        <p>يهتم بالفعاليات الثقافية والفنية والاجتماعية التي تنمّي شخصية الطالب وانتماءه.</p>
+      </div>
+      <div class="program-card initiatives">
+        <h3>🌟 المبادرات والتميز</h3>
+        <p>نقاط إضافية تُمنح للطلاب الذين يقدّمون مبادرات أو أعمالاً مميزة تتجاوز المتطلبات الأساسية.</p>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         الطلاب العشرة الأوائل
+         ========================================================= -->
+    <h3 class="section-title" style="font-size:19px; margin-top:36px;">🏆 الطلاب العشرة المتصدرون</h3>
+    <p class="section-desc">أعلى 10 طلاب حسب إجمالي النقاط في جميع البرامج</p>
+
+    <div class="data-table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>الاسم</th>
+            <th>المجموعة</th>
+            <th>الإجمالي</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% topStudents.forEach((s, i) => { %>
+            <tr class="<%= i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '' %>">
+              <td><%= i + 1 %></td>
+              <td><%= s.name %></td>
+              <td><%= s.group_name %></td>
+              <td><strong><%= s.total_points %></strong></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+<%- include('partials/footer') %>

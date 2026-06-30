@@ -1,0 +1,29 @@
+/* =========================================================
+   controllers/homeController.js
+   منطق الصفحة الرئيسية: التعريف بالنادي + الإحصائيات + المتصدرون
+   ========================================================= */
+
+const statsModel = require("../models/statsModel");
+const studentModel = require("../models/studentModel");
+
+async function showHome(req, res, next) {
+  try {
+    const stats = await statsModel.getHomeStats();
+    const settings = await statsModel.getSettings();
+    const topStudents = await studentModel.getTopStudents(10);
+    const clubDays = await statsModel.getClubDayNames();
+
+    res.render("home", {
+      pageTitle: "الرئيسية",
+      activeNav: "home",
+      stats,
+      settings,
+      topStudents,
+      clubDays,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { showHome };
