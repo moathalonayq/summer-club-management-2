@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      renderStudentProfile(data.student, data.groupRank, data.groupSize, detailsBox);
+      renderStudentProfile(data.student, data.groupRank, data.groupSize, data.overallRank, data.totalStudents, detailsBox);
     } catch (err) {
       detailsBox.innerHTML = `<p class="empty-note">حدث خطأ أثناء جلب بيانات الطالب</p>`;
     }
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return { rate, present, late, absent };
   }
 
-  function renderStudentProfile(student, groupRank, groupSize, container) {
+  function renderStudentProfile(student, groupRank, groupSize, overallRank, totalStudents, container) {
     const att = getAttendanceRate(student.attendance);
     const recordedSessions = student.attendance.filter(a => a.status !== null);
     const lastStatus = recordedSessions.length
@@ -122,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="profile-rank">
             <span class="rank-number">#${groupRank}</span>
             <span class="rank-label">ترتيبه بين ${groupSize} في مجموعته</span>
+            <span class="rank-number" style="font-size:18px; margin-top:6px;">#${overallRank}</span>
+            <span class="rank-label">ترتيبه العام بين ${totalStudents} طالب</span>
           </div>
         </div>
 
@@ -148,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="point-value">${student.sports_points}</span>
           </div>
           <div class="point-item cultural">
-            <span class="point-label">البرنامج الثقافي</span>
+            <span class="point-label">البرنامج الترفيهي</span>
             <span class="point-value">${student.cultural_points}</span>
           </div>
         </div>

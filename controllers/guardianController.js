@@ -55,11 +55,15 @@ async function getStudentDetails(req, res, next) {
       student.group_id
     );
 
+    const { rank: overallRank, total: totalStudents } = await studentModel.getStudentRankOverall(student.id);
+
     res.json({
       success: true,
       student,
       groupRank: rank,
       groupSize,
+      overallRank,
+      totalStudents,
     });
   } catch (err) {
     next(err);

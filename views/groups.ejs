@@ -2,39 +2,143 @@
 
   <section class="app-section active">
     <h2 class="section-title">المجموعات</h2>
-    <p class="section-desc">المجموعات مقسَّمة إلى فئتين، وكل مجموعة مرتبة حسب إجمالي نقاطها داخل فئتها</p>
+    <p class="section-desc">اختر الفئة ثم المجموعة لعرض تفاصيل الطلاب</p>
 
-    <div class="category-block">
-      <h3 class="category-title minor">
-        <span class="category-dot"></span>
-        الفئة الصغرى
-      </h3>
-      <% if (minorGroups.length === 0) { %>
-        <p class="empty-note">لا توجد مجموعات في هذه الفئة حالياً</p>
-      <% } else { %>
-        <div class="groups-container">
-          <% minorGroups.forEach((group, index) => { %>
-            <%- include('partials/group-card', { group, index }) %>
-          <% }) %>
+    <!-- مسار التنقل (breadcrumb) -->
+    <nav class="groups-breadcrumb" id="groupsBreadcrumb"></nav>
+
+    <!-- المستوى 1: الفئتان -->
+    <div id="levelCategories" class="groups-level">
+      <div class="category-cards-grid">
+        <div class="category-select-card major" onclick="showGroups('الفئة العليا')">
+          <span class="cat-icon">🏅</span>
+          <h3>الفئة العليا</h3>
+          <p><%= majorGroups.length %> مجموعات</p>
         </div>
-      <% } %>
+        <div class="category-select-card minor" onclick="showGroups('الأولوية')">
+          <span class="cat-icon">⭐</span>
+          <h3>الأولوية</h3>
+          <p><%= minorGroups.length %> مجموعات</p>
+        </div>
+      </div>
     </div>
 
-    <div class="category-block">
-      <h3 class="category-title major">
-        <span class="category-dot"></span>
-        الفئة العليا
-      </h3>
-      <% if (majorGroups.length === 0) { %>
-        <p class="empty-note">لا توجد مجموعات في هذه الفئة حالياً</p>
-      <% } else { %>
-        <div class="groups-container">
-          <% majorGroups.forEach((group, index) => { %>
-            <%- include('partials/group-card', { group, index }) %>
-          <% }) %>
-        </div>
-      <% } %>
+    <!-- المستوى 2: مجموعات الفئة المختارة -->
+    <div id="levelGroups" class="groups-level hidden">
+      <div class="groups-summary-grid" id="groupsSummaryGrid"></div>
+    </div>
+
+    <!-- المستوى 3: طلاب المجموعة المختارة -->
+    <div id="levelStudents" class="groups-level hidden">
+      <div id="groupDetailContainer"></div>
     </div>
   </section>
 
 <%- include('partials/footer') %>
+
+<script>
+  const allGroups = {
+    'الفئة العليا': <%- JSON.stringify(majorGroups.map(g => ({
+      id: g.id, name: g.name, category: g.category,
+      member_count: g.member_count, total_points: g.total_points, avg_points: g.avg_points,
+      members: g.members.map(m => ({ id: m.id, name: m.name, total_points: m.total_points }))
+    }))) %>,
+    'الأولوية': <%- JSON.stringify(minorGroups.map(g => ({
+      id: g.id, name: g.name, category: g.category,
+      member_count: g.member_count, total_points: g.total_points, avg_points: g.avg_points,
+      members: g.members.map(m => ({ id: m.id, name: m.name, total_points: m.total_points }))
+    }))) %>
+  };
+
+  let currentCategory = null;
+
+  function showLevel(id) {
+    ['levelCategories','levelGroups','levelStudents'].forEach(l => {
+      document.getElementById(l).classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  function updateBreadcrumb(parts) {
+    const bc = document.getElementById('groupsBreadcrumb');
+    bc.innerHTML = parts.map((p, i) => {
+      if (i < parts.length - 1) {
+        return `<span class="bc-link" onclick="${p.fn}">${p.label}</span><span class="bc-sep">›</span>`;
+      }
+      return `<span class="bc-current">${p.label}</span>`;
+    }).join('');
+  }
+
+  function showGroups(category) {
+    currentCategory = category;
+    const groups = allGroups[category] || [];
+    const grid = document.getElementById('groupsSummaryGrid');
+
+    grid.innerHTML = groups.map((g, i) => {
+      const medalClass = i === 0 ? 'medal-gold' : i === 1 ? 'medal-silver' : i === 2 ? 'medal-bronze' : '';
+      return `
+        <div class="group-summary-card ${medalClass}" onclick="showStudents(${g.id})">
+          <div class="group-summary-rank">${i + 1}</div>
+          <div class="group-summary-info">
+            <h4>${g.name}</h4>
+            <p>${g.member_count} طالب • المتوسط: ${g.avg_points} نقطة</p>
+          </div>
+          <div class="group-summary-total">${g.total_points.toLocaleString('ar')}</div>
+        </div>
+      `;
+    }).join('');
+
+    updateBreadcrumb([
+      { label: 'المجموعات', fn: "backToCategories()" },
+      { label: category }
+    ]);
+    showLevel('levelGroups');
+  }
+
+  function showStudents(groupId) {
+    const groups = allGroups[currentCategory] || [];
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+
+    const container = document.getElementById('groupDetailContainer');
+    const rows = group.members.map((m, i) => {
+      const rowClass = i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '';
+      return `
+        <tr class="${rowClass}">
+          <td>${i + 1}</td>
+          <td><a href="/guardian?student=${m.id}" class="student-link">${m.name}</a></td>
+          <td class="col-total"><strong>${m.total_points}</strong></td>
+        </tr>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="group-card">
+        <div class="group-card-header">
+          <div class="group-rank-badge">1</div>
+          <div>
+            <h3>${group.name}</h3>
+            <p class="group-sub">${group.member_count} طالب • إجمالي النقاط: ${group.total_points} • المتوسط: ${group.avg_points}</p>
+          </div>
+        </div>
+        <table class="group-table">
+          <thead><tr><th>الترتيب</th><th>اسم الطالب</th><th class="col-total">الإجمالي</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+
+    updateBreadcrumb([
+      { label: 'المجموعات', fn: "backToCategories()" },
+      { label: currentCategory, fn: `showGroups('${currentCategory}')` },
+      { label: group.name }
+    ]);
+    showLevel('levelStudents');
+  }
+
+  function backToCategories() {
+    updateBreadcrumb([]);
+    document.getElementById('groupsBreadcrumb').innerHTML = '';
+    showLevel('levelCategories');
+  }
+</script>

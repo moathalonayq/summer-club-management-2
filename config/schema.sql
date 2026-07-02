@@ -20,12 +20,12 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- =========================================================
 -- جدول المجموعات
 -- ("groups" كلمة محجوزة في MySQL لذلك نحيطها بـ backticks دائماً)
--- category: تقسيم المجموعات الست لقسمين (الفئة الصغرى / الفئة العليا)
+-- category: تقسيم المجموعات الست لقسمين (الأولوية / الفئة العليا)
 -- =========================================================
 CREATE TABLE `groups` (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL UNIQUE,
-  category ENUM('الفئة الصغرى', 'الفئة العليا') NOT NULL DEFAULT 'الفئة الصغرى'
+  category ENUM('الأولوية', 'الفئة العليا') NOT NULL DEFAULT 'الأولوية'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================================
@@ -54,6 +54,7 @@ CREATE TABLE knowledge_tasks (
   student_id INT NOT NULL,
   title VARCHAR(200) NOT NULL,
   done BOOLEAN NOT NULL DEFAULT FALSE,
+  points INT NOT NULL DEFAULT 0,
   CONSTRAINT fk_tasks_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   INDEX idx_tasks_student (student_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

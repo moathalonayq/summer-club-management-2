@@ -8,14 +8,14 @@
     <div class="intro-card">
       <h2 class="section-title">عن نادي القيروان</h2>
       <p class="section-desc intro-text">
-         القيروان منصة موسمية تهدف إلى متابعة وتطوير الطلاب عبر برامج معرفية ورياضية وثقافية متكاملة،
+        نادي القيروان منصة موسمية تهدف إلى متابعة وتطوير الطلاب عبر برامج معرفية ورياضية وثقافية متكاملة،
         مع نظام نقاط وحضور يحفّز التميز والمنافسة الإيجابية بين الطلاب والمجموعات طوال الموسم.
       </p>
 
       <div class="club-quick-facts">
         <div class="quick-fact">
           <span class="quick-fact-value"><%= settings.total_weeks %></span>
-          <span class="quick-fact-label">أسابيع الموسم</span>
+          <span class="quick-fact-label">أسابيع النادي</span>
         </div>
         <div class="quick-fact">
           <span class="quick-fact-value"><%= settings.days_per_week %></span>
@@ -23,7 +23,7 @@
         </div>
         <div class="quick-fact">
           <span class="quick-fact-value"><%= settings.season_name %></span>
-          <span class="quick-fact-label">الموسم الحالي</span>
+          <span class="quick-fact-label"></span>
         </div>
       </div>
 
@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <h2 class="section-title">نظرة عامة على الموسم</h2>
+    <h2 class="section-title">نظرة عامة على النادي</h2>
     <p class="section-desc">إحصائية شاملة عن نادي القيروان وأداء الطلاب في جميع البرامج</p>
 
     <div class="stats-grid">
@@ -48,8 +48,8 @@
         <div class="stat-label">عدد المجموعات</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value"><%= stats.attendanceRate %>%</div>
-        <div class="stat-label">نسبة الحضور العامة</div>
+        <div class="stat-value"><%= stats.attendanceRate %></div>
+        <div class="stat-label">عدد الحضور</div>
       </div>
       <div class="stat-card knowledge">
         <div class="stat-value"><%= stats.totalKnowledge %></div>
@@ -61,7 +61,7 @@
       </div>
       <div class="stat-card cultural">
         <div class="stat-value"><%= stats.totalCultural %></div>
-        <div class="stat-label">نقاط البرنامج الثقافي</div>
+        <div class="stat-label">نقاط البرنامج الترفيهي</div>
       </div>
       <div class="stat-card gold">
         <div class="stat-value"><%= stats.totalInitiatives %></div>
@@ -82,8 +82,8 @@
         <p>يغطي الأنشطة البدنية والمشاركات الرياضية داخل النادي وخارجه، وتُمنح النقاط حسب المشاركة والإنجاز.</p>
       </div>
       <div class="program-card cultural">
-        <h3>🎭 البرنامج الثقافي</h3>
-        <p>يهتم بالفعاليات الثقافية والفنية والاجتماعية التي تنمّي شخصية الطالب وانتماءه.</p>
+        <h3>🎭 البرنامج الترفيهي</h3>
+        <p>يهتم بالفعاليات الترفيهية والفنية والاجتماعية التي تنمّي شخصية الطالب وانتماءه.</p>
       </div>
       <div class="program-card initiatives">
         <h3>🌟 المبادرات والتميز</h3>
@@ -92,32 +92,53 @@
     </div>
 
     <!-- =========================================================
-         الطلاب العشرة الأوائل
+         المتصدرون: أفضل 5 من كل فئة
          ========================================================= -->
-    <h3 class="section-title" style="font-size:19px; margin-top:36px;">🏆 الطلاب العشرة المتصدرون</h3>
-    <p class="section-desc">أعلى 10 طلاب حسب إجمالي النقاط في جميع البرامج</p>
+    <h3 class="section-title" style="font-size:19px; margin-top:36px;">🏆 المتصدرون</h3>
+    <p class="section-desc">أفضل 5 طلاب من كل فئة حسب إجمالي النقاط</p>
 
-    <div class="data-table-wrapper">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>الاسم</th>
-            <th>المجموعة</th>
-            <th>الإجمالي</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% topStudents.forEach((s, i) => { %>
-            <tr class="<%= i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '' %>">
-              <td><%= i + 1 %></td>
-              <td><%= s.name %></td>
-              <td><%= s.group_name %></td>
-              <td><strong><%= s.total_points %></strong></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+    <div class="top-students-split">
+      <div class="top-students-col">
+        <h4 class="top-cat-title major-title">🥇 الفئة العليا</h4>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>الاسم</th><th>المجموعة</th><th>الإجمالي</th></tr>
+            </thead>
+            <tbody>
+              <% (topByCategory['الفئة العليا'] || []).forEach((s, i) => { %>
+                <tr class="<%= i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '' %>">
+                  <td><%= i + 1 %></td>
+                  <td><%= s.name %></td>
+                  <td><%= s.group_name %></td>
+                  <td><strong><%= s.total_points %></strong></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="top-students-col">
+        <h4 class="top-cat-title minor-title">🥇 الأولوية</h4>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>الاسم</th><th>المجموعة</th><th>الإجمالي</th></tr>
+            </thead>
+            <tbody>
+              <% (topByCategory['الأولوية'] || []).forEach((s, i) => { %>
+                <tr class="<%= i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '' %>">
+                  <td><%= i + 1 %></td>
+                  <td><%= s.name %></td>
+                  <td><%= s.group_name %></td>
+                  <td><strong><%= s.total_points %></strong></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </section>

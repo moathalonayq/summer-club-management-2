@@ -115,6 +115,41 @@ async function getTopStudents(limit = 10) {
   return rows;
 }
 
+/* -------- أفضل 5 من كل فئة (الأولوية / العليا) للصفحة الرئيسية -------- */
+async function getTopStudentsByCategory(limit = 5) {
+  const [rows] = await pool.query(`
+    SELECT
+      s.id, s.name, g.name AS group_name, g.category,
+      (s.knowledge_points + s.sports_points + s.cultural_points
+        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
+      ) AS total_points
+    FROM students s
+    JOIN \`groups\` g ON g.id = s.group_id
+    ORDER BY g.category ASC, total_points DESC
+  `);
+
+  const byCategory = {};
+  rows.forEach((s) => {
+    if (!byCategory[s.category]) byCategory[s.category] = [];
+    if (byCategory[s.category].length < limit) byCategory[s.category].push(s);
+  });
+  return byCategory;
+}
+
+/* -------- الترتيب العام للطالب بين جميع الطلاب -------- */
+async function getStudentRankOverall(studentId) {
+  const [rows] = await pool.query(`
+    SELECT id,
+      (knowledge_points + sports_points + cultural_points
+        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
+      ) AS total_points
+    FROM students
+    ORDER BY total_points DESC
+  `);
+  const rank = rows.findIndex((s) => s.id === studentId) + 1;
+  return { rank, total: rows.length };
+}
+
 /* -------- ترتيب طالب داخل مجموعته فقط (تُستخدم في بوابة ولي الأمر) -------- */
 async function getStudentRankInGroup(studentId, groupId) {
   const [rows] = await pool.query(`
@@ -186,18 +221,40 @@ async function getAttendanceForSession(studentId, sessionId) {
   return rows[0] || null;
 }
 
-/* -------- تحديث حالة إنجاز متطلب من متطلبات البرنامج المعرفي (يُحدِّدها المشرف) -------- */
+/* -------- تحديث حالة إنجاز متطلب — النقاط تُقرأ من القيمة المضبوطة مسبقاً عالمياً -------- */
 async function setKnowledgeTaskDone(taskId, done) {
-  await pool.query(
-    "UPDATE knowledge_tasks SET done = ? WHERE id = ?",
-    [done, taskId]
-  );
-
-  const [rows] = await pool.query(
-    "SELECT id, student_id, title, done FROM knowledge_tasks WHERE id = ?",
+  // نجلب الحالة الحالية لنعرف كم نقطة كانت مُسجَّلة سابقاً
+  const [existing] = await pool.query(
+    "SELECT id, student_id, done, points FROM knowledge_tasks WHERE id = ?",
     [taskId]
   );
-  if (!rows.length) return null;
+  if (!existing.length) return null;
+
+  const task = existing[0];
+  const wasDone = !!task.done;
+  const prevPoints = Number(task.points) || 0;
+
+  if (done && !wasDone) {
+    // إنجاز جديد: نقرأ النقاط المضبوطة مسبقاً ونضيفها للطالب
+    if (prevPoints <= 0) return { error: "لم يتم ضبط نقاط هذا المتطلب بعد، اضبطها أولاً من إعدادات النقاط" };
+    await pool.query("UPDATE knowledge_tasks SET done = TRUE WHERE id = ?", [taskId]);
+    await pool.query(
+      "UPDATE students SET knowledge_points = GREATEST(knowledge_points + ?, 0) WHERE id = ?",
+      [prevPoints, task.student_id]
+    );
+  } else if (!done && wasDone) {
+    // إلغاء الإنجاز: نخصم النقاط المحفوظة مسبقاً ونصفّر نقاط المتطلب
+    await pool.query("UPDATE knowledge_tasks SET done = FALSE, points = 0 WHERE id = ?", [taskId]);
+    await pool.query(
+      "UPDATE students SET knowledge_points = GREATEST(knowledge_points - ?, 0) WHERE id = ?",
+      [prevPoints, task.student_id]
+    );
+  }
+
+  const [rows] = await pool.query(
+    "SELECT id, student_id, title, done, points FROM knowledge_tasks WHERE id = ?",
+    [taskId]
+  );
   return { ...rows[0], done: !!rows[0].done };
 }
 
@@ -212,4 +269,6 @@ module.exports = {
   markAttendance,
   getAttendanceForSession,
   setKnowledgeTaskDone,
+  getTopStudentsByCategory,
+  getStudentRankOverall,
 };

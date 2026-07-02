@@ -34,10 +34,7 @@ async function getHomeStats() {
   `);
 
   const att = attendanceRows[0];
-  const totalAttendance = Number(att.total) || 0;
-  const attendanceRate = totalAttendance > 0
-    ? Math.round(((Number(att.present || 0) + Number(att.late || 0) * 0.5) / totalAttendance) * 100)
-    : 0;
+  const attendanceRate = Number(att.present || 0) + Number(att.late || 0);
 
   const totals = totalsRows[0];
 

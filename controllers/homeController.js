@@ -10,7 +10,7 @@ async function showHome(req, res, next) {
   try {
     const stats = await statsModel.getHomeStats();
     const settings = await statsModel.getSettings();
-    const topStudents = await studentModel.getTopStudents(10);
+    const topByCategory = await studentModel.getTopStudentsByCategory(5);
     const clubDays = await statsModel.getClubDayNames();
 
     res.render("home", {
@@ -18,7 +18,7 @@ async function showHome(req, res, next) {
       activeNav: "home",
       stats,
       settings,
-      topStudents,
+      topByCategory,
       clubDays,
     });
   } catch (err) {

@@ -197,8 +197,64 @@ function setupAttendanceForm() {
    المشرف هو من يحدّد إنجاز كل متطلب (الطالب يخبره شخصياً)
    ========================================================= */
 function setupKnowledgeTasksPanel() {
-  const list = document.getElementById("knowledgeTasksList");
-  if (!list) return;
+  loadTaskConfig();
+  const saveBtn = document.getElementById("saveTaskConfigBtn");
+  if (saveBtn) saveBtn.addEventListener("click", saveTaskConfig);
+}
+
+/* تحميل إعدادات نقاط المتطلبات وعرضها في القسم العالمي */
+async function loadTaskConfig() {
+  const configBox = document.getElementById("taskConfigList");
+  if (!configBox) return;
+
+  try {
+    const res = await fetch("/api/supervisor/task-config");
+    const data = await res.json();
+    if (!data.success) return;
+
+    configBox.innerHTML = data.config.map((t) => `
+      <div class="task-config-row">
+        <span class="task-config-title">${t.title}</span>
+        <input type="number" class="task-config-input" data-title="${t.title}"
+          min="1" placeholder="0" value="${t.points > 0 ? t.points : ""}">
+        <span class="task-points-label">نقطة</span>
+      </div>
+    `).join("");
+  } catch (e) {
+    configBox.innerHTML = `<p class="form-msg error">تعذر تحميل الإعدادات</p>`;
+  }
+}
+
+/* حفظ إعدادات النقاط عالمياً */
+async function saveTaskConfig() {
+  const inputs = document.querySelectorAll(".task-config-input");
+  const saveBtn = document.getElementById("saveTaskConfigBtn");
+  const msg = document.getElementById("taskConfigMsg");
+
+  const configs = Array.from(inputs).map((inp) => ({
+    title: inp.dataset.title,
+    points: Number(inp.value) || 0,
+  }));
+
+  if (configs.some((c) => c.points <= 0)) {
+    showMsg(msg, "أدخل قيمة نقاط لكل متطلب", "error");
+    return;
+  }
+
+  saveBtn.disabled = true;
+  try {
+    const res = await fetch("/api/supervisor/task-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ configs }),
+    });
+    const data = await res.json();
+    showMsg(msg, data.success ? "تم حفظ النقاط بنجاح ✅" : "حدث خطأ", data.success ? "success" : "error");
+  } catch (e) {
+    showMsg(msg, "حدث خطأ في الاتصال", "error");
+  } finally {
+    saveBtn.disabled = false;
+  }
 }
 
 async function loadKnowledgeTasks(studentId) {
@@ -224,10 +280,11 @@ async function loadKnowledgeTasks(studentId) {
     }
 
     list.innerHTML = tasks.map((t) => `
-      <label class="task-toggle-item">
+      <div class="task-toggle-item">
         <input type="checkbox" class="task-toggle-checkbox" data-task-id="${t.id}" ${t.done ? "checked" : ""}>
-        <span>${t.title}</span>
-      </label>
+        <span class="task-toggle-title">${t.title}</span>
+        ${t.done && t.points ? `<span class="task-done-points">${t.points} نقطة</span>` : ""}
+      </div>
     `).join("");
 
     list.querySelectorAll(".task-toggle-checkbox").forEach((checkbox) => {
@@ -235,7 +292,6 @@ async function loadKnowledgeTasks(studentId) {
         const taskId = checkbox.dataset.taskId;
         const done = checkbox.checked;
         checkbox.disabled = true;
-
         try {
           const res = await fetch("/api/supervisor/tasks", {
             method: "POST",
@@ -243,12 +299,15 @@ async function loadKnowledgeTasks(studentId) {
             body: JSON.stringify({ taskId, done }),
           });
           const data = await res.json();
-
           if (!data.success) {
-            checkbox.checked = !done; // تراجع عن التغيير عند فشل الحفظ
+            checkbox.checked = !done;
             showMsg(msg, data.message || "حدث خطأ", "error");
           } else {
-            showMsg(msg, `تم تحديث "${data.task.title}" بنجاح ✅`, "success");
+            const action = done ? "تم إنجاز" : "تم إلغاء إنجاز";
+            const pts = data.task && data.task.points;
+            showMsg(msg, action + " [" + data.task.title + "]" + (done && pts ? " (+" + pts + " نقطة) ✅" : " ✅"), "success");
+            const sid = document.getElementById("tasksStudentSelect").value;
+            if (sid) loadKnowledgeTasks(sid);
           }
         } catch (err) {
           checkbox.checked = !done;

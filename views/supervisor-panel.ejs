@@ -26,9 +26,8 @@
           <div class="form-group">
             <label for="programSelect">اللجنة / البرنامج</label>
             <select id="programSelect" class="form-select">
-              <option value="knowledge">البرنامج المعرفي</option>
               <option value="sports">البرنامج الرياضي</option>
-              <option value="cultural">البرنامج الثقافي</option>
+              <option value="cultural">البرنامج الترفيهي</option>
               <option value="initiative">مبادرة / إنجاز مميز</option>
             </select>
           </div>
@@ -90,6 +89,16 @@
          الطالب يُخبر المشرف شفهياً/شخصياً بإنجاز متطلب معين،
          والمشرف هو من يحدّد ذلك هنا (وليس الطالب تلقائياً)
          ========================================================= -->
+    <!-- إعداد نقاط المتطلبات عالمياً (مرة واحدة لكل المتطلبات) -->
+    <div class="panel-box knowledge-tasks-box">
+      <h4>⚙️ ضبط نقاط متطلبات البرنامج المعرفي</h4>
+      <p class="section-desc" style="margin-bottom:12px; font-size:13px;">حدد نقاط كل متطلب مرة واحدة — ستُطبَّق على جميع الطلاب عند تحديد إنجازهم</p>
+      <div id="taskConfigList" class="knowledge-tasks-list"></div>
+      <button type="button" id="saveTaskConfigBtn" class="btn btn-primary" style="margin-top:12px; width:100%;">حفظ النقاط</button>
+      <p class="form-msg" id="taskConfigMsg"></p>
+    </div>
+
+    <!-- تقييم متطلبات كل طالب -->
     <div class="panel-box knowledge-tasks-box">
       <h4>تقييم متطلبات البرنامج المعرفي</h4>
       <div class="form-group">

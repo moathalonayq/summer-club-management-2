@@ -18,7 +18,7 @@ async function showGroupsPage(req, res, next) {
     );
 
     // نقسّم المجموعات الست لقسمين حسب category: الفئة الصغرى والفئة العليا
-    const minorGroups = groupsWithMembers.filter((g) => g.category === "الفئة الصغرى");
+    const minorGroups = groupsWithMembers.filter((g) => g.category === "الأولوية");
     const majorGroups = groupsWithMembers.filter((g) => g.category === "الفئة العليا");
 
     res.render("groups", {

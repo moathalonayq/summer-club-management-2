@@ -176,6 +176,34 @@ async function scanBarcodeAttendance(req, res, next) {
 }
 
 /* -------- API: تحديد متطلب من متطلبات البرنامج المعرفي كمُنجز أو لا (تقييم المشرف) -------- */
+/* -------- API: جلب إعدادات نقاط المتطلبات (قيمة واحدة لكل عنوان) -------- */
+async function getTaskConfig(req, res, next) {
+  try {
+    const [rows] = await pool.query(
+      "SELECT title, MAX(points) AS points FROM knowledge_tasks GROUP BY title ORDER BY MIN(id)"
+    );
+    res.json({ success: true, config: rows });
+  } catch (err) { next(err); }
+}
+
+/* -------- API: حفظ نقاط المتطلبات عالمياً (لكل طالب لم يُنجز بعد) -------- */
+async function saveTaskConfig(req, res, next) {
+  try {
+    const { configs } = req.body; // [{title, points}, ...]
+    if (!Array.isArray(configs)) return res.status(400).json({ success: false });
+
+    for (const { title, points } of configs) {
+      const pts = Math.max(0, Number(points) || 0);
+      // نحدّث فقط المتطلبات غير المُنجزة حتى لا نمس النقاط المحسوبة مسبقاً
+      await pool.query(
+        "UPDATE knowledge_tasks SET points = ? WHERE title = ? AND done = FALSE",
+        [pts, title]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) { next(err); }
+}
+
 async function setKnowledgeTaskStatus(req, res, next) {
   try {
     const { taskId, done } = req.body;
@@ -188,6 +216,9 @@ async function setKnowledgeTaskStatus(req, res, next) {
     const task = await studentModel.setKnowledgeTaskDone(taskIdNum, done);
     if (!task) {
       return res.status(404).json({ success: false, message: "المتطلب غير موجود" });
+    }
+    if (task.error) {
+      return res.status(400).json({ success: false, message: task.error });
     }
 
     await pool.query(
@@ -210,4 +241,6 @@ module.exports = {
   markAttendanceManual,
   scanBarcodeAttendance,
   setKnowledgeTaskStatus,
+  getTaskConfig,
+  saveTaskConfig,
 };

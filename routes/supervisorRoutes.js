@@ -17,5 +17,7 @@ router.post("/api/supervisor/points", requireSupervisorApi, supervisorController
 router.post("/api/supervisor/attendance", requireSupervisorApi, supervisorController.markAttendanceManual);
 router.post("/api/supervisor/scan", requireSupervisorApi, supervisorController.scanBarcodeAttendance);
 router.post("/api/supervisor/tasks", requireSupervisorApi, supervisorController.setKnowledgeTaskStatus);
+router.get("/api/supervisor/task-config", requireSupervisorApi, supervisorController.getTaskConfig);
+router.post("/api/supervisor/task-config", requireSupervisorApi, supervisorController.saveTaskConfig);
 
 module.exports = router;
