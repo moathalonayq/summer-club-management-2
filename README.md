@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🟢 موقع نادي القيروان — منصة موسمية متكاملة
 
 موقع متكامل (Full-Stack) لمتابعة طلاب نادي القيروان، نقاطهم، حضورهم، ومجموعاتهم،
@@ -268,3 +269,7 @@ https://qayrawan-club.up.railway.app
 - حالة الحضور (`status`) مخزّنة كـ `ENUM('حاضر', 'متأخر', 'غايب')` لضمان عدم إدخال قيم غير صحيحة.
 - التواريخ تُسترجع كنص بسيط (`YYYY-MM-DD`) بدل كائن JavaScript Date، بسبب خيار `dateStrings: true` في `config/db.js`.
 - التشفير المستخدم في كل الجداول هو `utf8mb4` لدعم النصوص العربية بشكل كامل.
+=======
+# summer-club-management-2
+A web-based management system for summer clubs with attendance tracking, QR code check-in, student rewards, and group management.
+>>>>>>> 16c77256997d376637b490662cd34967e639ee41
