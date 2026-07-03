@@ -106,6 +106,62 @@ document.addEventListener("DOMContentLoaded", () => {
     return text.replace(new RegExp(`(${escaped})`, "gi"), "<mark>$1</mark>");
   }
 
+  /* -------------------------------------------------------
+     سجل البحث الأخير (localStorage)
+  ------------------------------------------------------- */
+  const HISTORY_KEY = 'guardian_recent';
+  const MAX_HISTORY = 3;
+
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function saveToHistory(id, name, groupName) {
+    let history = getHistory().filter(h => h.id !== id);
+    history.unshift({ id, name, groupName });
+    if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    renderRecentSearches();
+  }
+
+  function renderRecentSearches() {
+    const box = document.getElementById('recentSearches');
+    if (!box) return;
+    const history = getHistory();
+    if (!history.length) { box.innerHTML = ''; return; }
+
+    box.innerHTML = `
+      <div class="recent-label">🕓 آخر عمليات البحث</div>
+      <div class="recent-list">
+        ${history.map(h => `
+          <button class="recent-item" data-id="${h.id}" data-name="${h.name}">
+            <span class="recent-name">${h.name}</span>
+            <span class="recent-group">${h.groupName}</span>
+          </button>
+        `).join('')}
+        <button class="recent-clear" onclick="clearRecentSearches()">مسح السجل</button>
+      </div>
+    `;
+
+    box.querySelectorAll('.recent-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = btn.dataset.name;
+        clearBtn.style.display = 'flex';
+        loadStudentProfile(btn.dataset.id);
+        closeResults();
+      });
+    });
+  }
+
+  window.clearRecentSearches = () => {
+    localStorage.removeItem(HISTORY_KEY);
+    renderRecentSearches();
+  };
+
+  // عرض السجل عند تحميل الصفحة
+  renderRecentSearches();
+
   async function searchStudents(query) {
     try {
       const res  = await fetch(`/api/students/search?q=${encodeURIComponent(query)}`);
@@ -131,6 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
           input.value = item.dataset.name;
           clearBtn.style.display = "flex";
           if (hint) hint.style.display = "none";
+          saveToHistory(item.dataset.id, item.dataset.name, item.querySelector('.search-item-group')?.textContent || '');
           loadStudentProfile(item.dataset.id);
           closeResults();
         });
@@ -156,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       document.getElementById("guardianSteps")?.classList.add("hidden");
+      saveToHistory(data.student.id, data.student.name, data.student.group_name);
       renderStudentProfile(
         data.student, data.groupRank, data.groupSize,
         data.overallRank, data.totalStudents, detailsBox

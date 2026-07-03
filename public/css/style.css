@@ -1705,3 +1705,65 @@ input, select { font-family: inherit; }
 /* إصلاح: لون نص نتائج البحث داخل البانر الكحلي */
 .search-results { color: var(--ink); }
 .search-item-name { color: var(--ink); font-size: 14px; }
+
+/* ---------------------------------------------------------
+   سجل البحث الأخير — بوابة ولي الأمر
+   --------------------------------------------------------- */
+.recent-searches { margin-top: 14px; text-align: right; }
+
+.recent-label {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.recent-item {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.recent-item:hover {
+  background: rgba(255,255,255,0.22);
+  border-color: var(--yellow);
+}
+
+.recent-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.recent-group {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+}
+
+.recent-clear {
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+  text-decoration: underline;
+  transition: 0.15s;
+}
+.recent-clear:hover { color: rgba(255,255,255,0.75); }
