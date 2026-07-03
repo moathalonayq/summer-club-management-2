@@ -94,8 +94,8 @@ async function searchStudentsByName(query) {
     JOIN \`groups\` g ON g.id = s.group_id
     WHERE s.name LIKE ?
     ORDER BY s.name ASC
-    LIMIT 15
-  `, [`%${query}%`]);
+    LIMIT 30
+  `, [`${query}%`]);
   return rows;
 }
 
