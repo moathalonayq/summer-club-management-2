@@ -118,8 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveToHistory(id, name, groupName) {
-    let history = getHistory().filter(h => h.id !== id);
-    history.unshift({ id, name, groupName });
+    const sid = String(id);
+    let history = getHistory().filter(h => String(h.id) !== sid);
+    history.unshift({ id: sid, name, groupName });
     if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     renderRecentSearches();
@@ -187,7 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
           input.value = item.dataset.name;
           clearBtn.style.display = "flex";
           if (hint) hint.style.display = "none";
-          saveToHistory(item.dataset.id, item.dataset.name, item.querySelector('.search-item-group')?.textContent || '');
           loadStudentProfile(item.dataset.id);
           closeResults();
         });
