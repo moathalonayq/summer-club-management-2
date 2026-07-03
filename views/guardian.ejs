@@ -5,9 +5,13 @@
     <p class="section-desc">ابحث باسم الطالب لمتابعة أدائه وحضوره وترتيبه في جميع البرامج</p>
 
     <div class="search-box-wrapper">
-      <input type="text" id="guardianSearchInput" class="search-input" placeholder="اكتب اسم الطالب للبحث...">
+      <span class="search-icon-prefix">🔍</span>
+      <input type="text" id="guardianSearchInput" class="search-input search-input-padded" placeholder="اكتب اسم الطالب للبحث..." autocomplete="off">
+      <button id="guardianSearchClear" class="search-clear-btn" title="مسح البحث" style="display:none;">✕</button>
       <div class="search-results" id="guardianSearchResults"></div>
     </div>
+
+    <div id="guardianSearchHint" class="search-hint">ابدأ بكتابة اسم الطالب للبحث</div>
 
     <div id="guardianDetails"></div>
   </section>

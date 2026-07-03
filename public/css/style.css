@@ -1343,3 +1343,207 @@ input, select { font-family: inherit; }
   border-radius: var(--radius-pill);
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------
+   بوابة ولي الأمر — تحسينات UX
+   --------------------------------------------------------- */
+.search-box-wrapper { position: relative; }
+
+.search-icon-prefix {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-input-padded { padding-right: 44px; padding-left: 44px; }
+
+.search-clear-btn {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: 0.15s;
+}
+.search-clear-btn:hover { background: var(--cream-dark); color: var(--ink); }
+
+.search-hint {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  text-align: center;
+  padding: 6px 0;
+}
+
+.search-item-name mark {
+  background: rgba(109,199,204,0.3);
+  color: var(--navy);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.search-item-active { background: var(--cream) !important; }
+
+.search-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+}
+
+.loading-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.profile-loading {
+  text-align: center;
+  padding: 30px;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+/* رأس البطاقة */
+.profile-header-info h3 { font-family: var(--font-display); font-size: 20px; color: var(--navy); }
+.profile-barcode-hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; letter-spacing: 0.5px; }
+
+.profile-ranks {
+  display: flex;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.rank-badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  min-width: 64px;
+}
+.rank-medal { font-size: 26px; line-height: 1; }
+.rank-medal-overall { font-size: 20px; }
+.rank-desc { font-size: 11px; color: var(--ink-soft); text-align: center; line-height: 1.5; }
+
+/* بطاقات ملخص */
+.profile-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.summary-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  border-top: 3px solid var(--cream-dark);
+  box-shadow: var(--shadow-sm);
+}
+.summary-total { border-top-color: var(--purple); }
+.summary-att   { border-top-color: var(--teal); }
+.summary-tasks { border-top-color: var(--yellow); }
+
+.summary-value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--navy);
+}
+.summary-label { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger  { color: var(--danger) !important; }
+
+/* شريط التقدم */
+.progress-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.progress-bar-track {
+  flex: 1;
+  height: 9px;
+  background: var(--cream-dark);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s ease;
+}
+.bar-success   { background: var(--success); }
+.bar-warning   { background: var(--warning); }
+.bar-danger    { background: var(--danger); }
+.bar-knowledge { background: var(--purple); }
+.progress-bar-label { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+
+/* تفاصيل النقاط */
+.points-detail-list { display: flex; flex-direction: column; gap: 8px; }
+.points-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+.pd-label { color: var(--ink); }
+.pd-value  { font-weight: 900; font-family: var(--font-display); font-size: 16px; }
+.knowledge-color { color: var(--purple); }
+.sports-color    { color: var(--orange); }
+.cultural-color  { color: var(--teal); }
+
+/* حضور */
+.att-summary-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+.att-detail-text { font-size: 13px; color: var(--ink-soft); }
+
+/* متطلبات */
+.task-pts-badge {
+  margin-right: auto;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--success);
+  background: rgba(63,167,150,0.12);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+/* أزرار الأكشن */
+.profile-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--cream-dark);
+  margin-top: 10px;
+}
+
+/* طباعة */
+@media print {
+  .top-header, .main-nav, .search-box-wrapper, .search-hint,
+  .profile-actions, .pattern-strip, .app-footer { display: none !important; }
+  .profile-card { box-shadow: none !important; }
+}
