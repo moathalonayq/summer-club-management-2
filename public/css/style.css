@@ -1701,3 +1701,7 @@ input, select { font-family: inherit; }
   .guardian-hero { padding: 28px 18px; }
   .guardian-hero-text h2 { font-size: 22px; }
 }
+
+/* إصلاح: لون نص نتائج البحث داخل البانر الكحلي */
+.search-results { color: var(--ink); }
+.search-item-name { color: var(--ink); font-size: 14px; }
