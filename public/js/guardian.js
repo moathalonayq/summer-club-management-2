@@ -155,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      document.getElementById("guardianSteps")?.classList.add("hidden");
       renderStudentProfile(
         data.student, data.groupRank, data.groupSize,
         data.overallRank, data.totalStudents, detailsBox

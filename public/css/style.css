@@ -1547,3 +1547,154 @@ input, select { font-family: inherit; }
   .profile-actions, .pattern-strip, .app-footer { display: none !important; }
   .profile-card { box-shadow: none !important; }
 }
+
+/* ---------------------------------------------------------
+   بوابة ولي الأمر — Hero Section
+   --------------------------------------------------------- */
+.guardian-hero {
+  background: linear-gradient(135deg, var(--navy) 0%, #2a4a9e 100%);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px 36px;
+  margin-bottom: 30px;
+  color: var(--white);
+  box-shadow: var(--shadow-lg);
+}
+
+.guardian-hero-text { text-align: center; margin-bottom: 28px; }
+
+.guardian-hero-text h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.hero-highlight { color: var(--yellow); }
+
+.guardian-hero-text p {
+  color: rgba(255,255,255,0.8);
+  font-size: 15px;
+}
+
+/* البطاقات الثلاث */
+.guardian-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.guardian-feature-card {
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-md);
+  padding: 18px 14px;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.guardian-feature-card:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+
+.gf-icon { font-size: 30px; display: block; margin-bottom: 8px; }
+
+.guardian-feature-card h4 {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-bottom: 5px;
+}
+
+.guardian-feature-card p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+}
+
+/* خانة البحث المركزية */
+.guardian-search-center { text-align: center; }
+
+.search-cta {
+  font-size: 14.5px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.guardian-search-box {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.guardian-search-input {
+  font-size: 16px !important;
+  padding: 15px 48px !important;
+  border-radius: var(--radius-pill) !important;
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  background: rgba(255,255,255,0.97) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+}
+
+.guardian-search-input:focus {
+  border-color: var(--yellow) !important;
+  outline: none !important;
+}
+
+.search-hint-center {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 10px;
+}
+
+/* خطوات الاستخدام */
+.guardian-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 28px;
+}
+
+.gs-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gs-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.gs-text { font-size: 13px; color: var(--ink); font-weight: 600; }
+
+.gs-arrow { color: var(--ink-soft); font-size: 18px; transform: scaleX(-1); }
+
+/* إخفاء الخطوات عند عرض ملف الطالب */
+.guardian-steps.hidden { display: none; }
+
+@media (max-width: 600px) {
+  .guardian-features { grid-template-columns: 1fr; }
+  .guardian-steps { flex-direction: column; gap: 8px; }
+  .gs-arrow { transform: rotate(90deg); }
+  .guardian-hero { padding: 28px 18px; }
+  .guardian-hero-text h2 { font-size: 22px; }
+}

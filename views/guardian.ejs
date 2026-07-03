@@ -1,19 +1,74 @@
 <%- include('partials/header') %>
 
   <section class="app-section active">
-    <h2 class="section-title">بوابة ولي الأمر</h2>
-    <p class="section-desc">ابحث باسم الطالب لمتابعة أدائه وحضوره وترتيبه في جميع البرامج</p>
 
-    <div class="search-box-wrapper">
-      <span class="search-icon-prefix">🔍</span>
-      <input type="text" id="guardianSearchInput" class="search-input search-input-padded" placeholder="اكتب اسم الطالب للبحث..." autocomplete="off">
-      <button id="guardianSearchClear" class="search-clear-btn" title="مسح البحث" style="display:none;">✕</button>
-      <div class="search-results" id="guardianSearchResults"></div>
+    <!-- =========================================================
+         واجهة الترحيب بولي الأمر
+         ========================================================= -->
+    <div class="guardian-hero">
+      <div class="guardian-hero-text">
+        <h2>بوابة <span class="hero-highlight">ولي الأمر</span></h2>
+        <p>تابع أداء ابنك وحضوره وترتيبه بين زملائه في جميع البرامج</p>
+      </div>
+
+      <!-- بطاقات الميزات الثلاث -->
+      <div class="guardian-features">
+        <div class="guardian-feature-card">
+          <span class="gf-icon">📅</span>
+          <h4>سجل الحضور</h4>
+          <p>اعرف حضور وغياب ابنك في كل جلسة</p>
+        </div>
+        <div class="guardian-feature-card">
+          <span class="gf-icon">🏆</span>
+          <h4>النقاط والترتيب</h4>
+          <p>تابع نقاطه وترتيبه داخل مجموعته وعلى مستوى النادي</p>
+        </div>
+        <div class="guardian-feature-card">
+          <span class="gf-icon">📘</span>
+          <h4>البرامج والمتطلبات</h4>
+          <p>شاهد إنجازاته في المتطلبات المعرفية والرياضية والترفيهية</p>
+        </div>
+      </div>
+
+      <!-- خانة البحث المركزية -->
+      <div class="guardian-search-center">
+        <p class="search-cta">🔎 ابحث عن ابنك الآن</p>
+        <div class="search-box-wrapper guardian-search-box">
+          <span class="search-icon-prefix">🔍</span>
+          <input
+            type="text"
+            id="guardianSearchInput"
+            class="search-input search-input-padded guardian-search-input"
+            placeholder="اكتب اسم الطالب..."
+            autocomplete="off"
+          >
+          <button id="guardianSearchClear" class="search-clear-btn" title="مسح" style="display:none;">✕</button>
+          <div class="search-results" id="guardianSearchResults"></div>
+        </div>
+        <p id="guardianSearchHint" class="search-hint-center">ابدأ بكتابة الاسم وستظهر النتائج تلقائياً</p>
+      </div>
     </div>
 
-    <div id="guardianSearchHint" class="search-hint">ابدأ بكتابة اسم الطالب للبحث</div>
+    <!-- خطوات الاستخدام (تختفي عند عرض ملف الطالب) -->
+    <div id="guardianSteps" class="guardian-steps">
+      <div class="gs-step">
+        <span class="gs-num">١</span>
+        <span class="gs-text">اكتب اسم ابنك في خانة البحث</span>
+      </div>
+      <div class="gs-arrow">←</div>
+      <div class="gs-step">
+        <span class="gs-num">٢</span>
+        <span class="gs-text">اختره من قائمة النتائج</span>
+      </div>
+      <div class="gs-arrow">←</div>
+      <div class="gs-step">
+        <span class="gs-num">٣</span>
+        <span class="gs-text">اطّلع على تفاصيل أدائه كاملة</span>
+      </div>
+    </div>
 
     <div id="guardianDetails"></div>
+
   </section>
 
 <%- include('partials/footer') %>
