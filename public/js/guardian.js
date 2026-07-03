@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rankMedal(rank) {
-    return rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `#${rank}`;
+    return `#${rank}`;
   }
 
   function progressBar(value, max, colorClass) {

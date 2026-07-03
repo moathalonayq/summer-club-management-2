@@ -1432,22 +1432,30 @@ input, select { font-family: inherit; }
 
 .profile-ranks {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   flex-shrink: 0;
 }
 .rank-badge-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  background: var(--cream);
+  gap: 2px;
+  background: var(--navy);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
-  min-width: 64px;
+  padding: 12px 18px;
+  min-width: 76px;
+  box-shadow: 0 4px 14px rgba(27,54,112,0.25);
 }
-.rank-medal { font-size: 26px; line-height: 1; }
-.rank-medal-overall { font-size: 20px; }
-.rank-desc { font-size: 11px; color: var(--ink-soft); text-align: center; line-height: 1.5; }
+.rank-medal {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--yellow);
+  line-height: 1;
+}
+.rank-medal-overall { font-size: 19px; }
+.rank-desc { font-size: 11px; color: rgba(255,255,255,0.8); text-align: center; line-height: 1.5; margin-top: 3px; }
 
 /* بطاقات ملخص */
 .profile-summary-cards {
@@ -1457,24 +1465,19 @@ input, select { font-family: inherit; }
   margin-bottom: 22px;
 }
 .summary-card {
-  background: var(--white);
+  background: var(--navy);
   border-radius: var(--radius-md);
-  padding: 16px 12px;
+  padding: 18px 12px;
   text-align: center;
-  border-top: 3px solid var(--cream-dark);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 14px rgba(27,54,112,0.2);
 }
-.summary-total { border-top-color: var(--purple); }
-.summary-att   { border-top-color: var(--teal); }
-.summary-tasks { border-top-color: var(--yellow); }
-
 .summary-value {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 24px;
-  color: var(--navy);
+  font-size: 26px;
+  color: var(--yellow);
 }
-.summary-label { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+.summary-label { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 5px; }
 
 .text-success { color: var(--success) !important; }
 .text-warning { color: var(--warning) !important; }
