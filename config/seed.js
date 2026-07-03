@@ -11,6 +11,7 @@ require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2/promise");
+const { normalizeArabic } = require("../utils/arabicNormalize");
 
 // الفئة الصغرى: 3 مجموعات | الفئة العليا: 3 مجموعات (نفس الأسماء الحالية، فقط مقسَّمة)
 const GROUPS_WITH_CATEGORY = [
@@ -106,9 +107,9 @@ async function run() {
 
       // mysql2 يرجع [rows, fields] دائماً، والـ insertId يوصلنا له عبر rows.insertId
       const [studentResult] = await connection.query(
-        `INSERT INTO students (barcode, name, group_id, knowledge_points, sports_points, cultural_points, guardian_phone)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [barcode, name, groupId, knowledgePoints, sportsPoints, culturalPoints, guardianPhone]
+        `INSERT INTO students (barcode, name, name_normalized, group_id, knowledge_points, sports_points, cultural_points, guardian_phone)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [barcode, name, normalizeArabic(name), groupId, knowledgePoints, sportsPoints, culturalPoints, guardianPhone]
       );
       const studentId = studentResult.insertId;
 

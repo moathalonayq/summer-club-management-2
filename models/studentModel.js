@@ -5,6 +5,7 @@
    ========================================================= */
 
 const pool = require("../config/db");
+const { normalizeArabic } = require("../utils/arabicNormalize");
 
 /* -------- جلب كل الطلاب مع اسم مجموعتهم وإجمالي نقاطهم -------- */
 async function getAllStudents() {
@@ -83,6 +84,7 @@ async function getStudentByBarcode(barcode) {
 
 /* -------- البحث عن طلاب بالاسم (بحث جزئي) -------- */
 async function searchStudentsByName(query) {
+  const normalized = normalizeArabic(query);
   const [rows] = await pool.query(`
     SELECT
       s.id, s.barcode, s.name,
@@ -92,10 +94,10 @@ async function searchStudentsByName(query) {
       ) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
-    WHERE s.name LIKE ?
+    WHERE s.name_normalized LIKE ? OR s.name LIKE ?
     ORDER BY s.name ASC
     LIMIT 30
-  `, [`${query}%`]);
+  `, [`${normalized}%`, `${query}%`]);
   return rows;
 }
 

@@ -35,6 +35,7 @@ CREATE TABLE students (
   id INT AUTO_INCREMENT PRIMARY KEY,
   barcode VARCHAR(30) NOT NULL UNIQUE,
   name VARCHAR(150) NOT NULL,
+  name_normalized VARCHAR(150) NULL,
   group_id INT NOT NULL,
   knowledge_points INT NOT NULL DEFAULT 0,
   sports_points INT NOT NULL DEFAULT 0,
