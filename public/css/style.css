@@ -596,6 +596,12 @@ input, select { font-family: inherit; }
 
 .group-table th.col-total { color: var(--navy); }
 
+.group-table .col-score {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink);
+}
+
 .student-link {
   color: var(--navy);
   font-weight: 600;

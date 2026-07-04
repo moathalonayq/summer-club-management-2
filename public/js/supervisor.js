@@ -18,7 +18,24 @@ document.addEventListener("DOMContentLoaded", () => {
   setupKnowledgeTasksPanel();
   setupBarcodeModal();
   setupScanner();
+  setupToggleScores();
 });
+
+/* =========================================================
+   زر إخفاء / إظهار أعمدة النقاط في جدول الطلاب
+   ========================================================= */
+function setupToggleScores() {
+  const btn = document.getElementById("toggleScoresBtn");
+  if (!btn) return;
+  let hidden = false;
+  btn.addEventListener("click", () => {
+    hidden = !hidden;
+    document.querySelectorAll(".col-scores").forEach(el => {
+      el.style.display = hidden ? "none" : "";
+    });
+    btn.textContent = hidden ? "إظهار النقاط" : "إخفاء النقاط";
+  });
+}
 
 /* =========================================================
    0) قائمة بحث سريعة بالكتابة لاختيار الطالب

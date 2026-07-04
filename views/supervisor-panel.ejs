@@ -133,7 +133,10 @@
     <!-- =========================================================
          جدول كل الطلاب + باركود كل طالب
          ========================================================= -->
-    <h4 class="table-section-title">جميع الطلاب وباركود كل طالب</h4>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+      <h4 class="table-section-title" style="margin-bottom:0;">جميع الطلاب وباركود كل طالب</h4>
+      <button type="button" id="toggleScoresBtn" class="btn btn-outline btn-small">إخفاء النقاط</button>
+    </div>
     <div class="data-table-wrapper">
       <table class="data-table" id="supervisorStudentTable">
         <thead>
@@ -141,10 +144,11 @@
             <th>#</th>
             <th>الاسم</th>
             <th>المجموعة</th>
-            <th>معرفي</th>
-            <th>رياضي</th>
-            <th>ثقافي</th>
-            <th>الإجمالي</th>
+            <th class="col-scores">معرفي</th>
+            <th class="col-scores">رياضي</th>
+            <th class="col-scores">ثقافي</th>
+            <th class="col-scores">الإجمالي</th>
+            <th>الحضور</th>
             <th>الباركود</th>
           </tr>
         </thead>
@@ -154,10 +158,11 @@
               <td><%= i + 1 %></td>
               <td><%= s.name %></td>
               <td><%= s.group_name %></td>
-              <td class="cell-knowledge"><%= s.knowledge_points %></td>
-              <td class="cell-sports"><%= s.sports_points %></td>
-              <td class="cell-cultural"><%= s.cultural_points %></td>
-              <td class="cell-total"><strong><%= s.total_points %></strong></td>
+              <td class="cell-knowledge col-scores"><%= s.knowledge_points %></td>
+              <td class="cell-sports col-scores"><%= s.sports_points %></td>
+              <td class="cell-cultural col-scores"><%= s.cultural_points %></td>
+              <td class="cell-total col-scores"><strong><%= s.total_points %></strong></td>
+              <td class="cell-attendance"><%= s.attendance_count %> / 9</td>
               <td>
                 <button type="button" class="btn-show-barcode" data-barcode="<%= s.barcode %>" data-name="<%= s.name %>">
                   <%= s.barcode %>
