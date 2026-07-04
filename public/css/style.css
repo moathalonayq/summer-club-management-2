@@ -615,6 +615,15 @@ input, select { font-family: inherit; }
   background: var(--cream-dark);
 }
 
+/* ألوان متبادلة لعمود الإجمالي بين الصفوف */
+.group-table tbody tr:nth-child(odd) .col-total  { background: #dce8f5; color: #1a3a5c; }
+.group-table tbody tr:nth-child(even) .col-total { background: #c8dff0; color: #0f2644; }
+
+/* أول 3 صفوف تحتفظ بألوانها الذهبية/الفضية/البرونزية في الاسم فقط */
+.group-table tbody tr.rank-gold-row   td:not(.col-total) { background: rgba(255,213,48,0.13); }
+.group-table tbody tr.rank-silver-row td:not(.col-total) { background: rgba(180,180,180,0.13); }
+.group-table tbody tr.rank-bronze-row td:not(.col-total) { background: rgba(200,130,50,0.10); }
+
 .group-table th.col-total { color: var(--navy); }
 
 .group-table .col-score {
