@@ -58,12 +58,21 @@ async function showPanel(req, res, next) {
     const groups = await groupModel.getAllGroupsSimple();
     const sessions = await sessionModel.getAllSessions();
 
+    // جلب جميع سجلات الحضور ثم بناء map: { studentId: { sessionId: status } }
+    const [attRows] = await pool.query("SELECT student_id, session_id, status FROM attendance");
+    const attendanceMap = {};
+    attRows.forEach(r => {
+      if (!attendanceMap[r.student_id]) attendanceMap[r.student_id] = {};
+      attendanceMap[r.student_id][r.session_id] = r.status;
+    });
+
     res.render("supervisor-panel", {
       pageTitle: "لوحة المشرفين",
       activeNav: "supervisor",
       students,
       groups,
       sessions,
+      attendanceMap,
     });
   } catch (err) {
     next(err);

@@ -148,7 +148,7 @@
             <th class="col-scores">رياضي</th>
             <th class="col-scores">ثقافي</th>
             <th class="col-scores">الإجمالي</th>
-            <th>الحضور</th>
+            <th>الحضور (9 جلسات)</th>
             <th>الباركود</th>
           </tr>
         </thead>
@@ -162,7 +162,20 @@
               <td class="cell-sports col-scores"><%= s.sports_points %></td>
               <td class="cell-cultural col-scores"><%= s.cultural_points %></td>
               <td class="cell-total col-scores"><strong><%= s.total_points %></strong></td>
-              <td class="cell-attendance"><%= s.attendance_count %> / 9</td>
+              <td class="cell-attendance">
+                <div class="att-dots">
+                  <% sessions.forEach(sess => {
+                    const st = (attendanceMap[s.id] || {})[sess.id];
+                    const cls = st === 'حاضر' || st === 'متأخر' ? 'att-present'
+                               : st === 'غايب' ? 'att-absent'
+                               : 'att-none';
+                    const icon = st === 'حاضر' || st === 'متأخر' ? '✓'
+                               : st === 'غايب' ? '✗' : '–';
+                  %>
+                    <span class="att-dot <%= cls %>" title="أسبوع <%= sess.week_number %> <%= sess.day_name %>"><%= icon %></span>
+                  <% }) %>
+                </div>
+              </td>
               <td>
                 <button type="button" class="btn-show-barcode" data-barcode="<%= s.barcode %>" data-name="<%= s.name %>">
                   <%= s.barcode %>

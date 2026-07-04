@@ -377,6 +377,18 @@ input, select { font-family: inherit; }
 .data-table tbody tr:last-child td { border-bottom: none; }
 
 .rank-gold-row { background: rgba(255, 213, 48, 0.16) !important; }
+
+/* رموز الحضور في جدول المشرفين */
+.att-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.att-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 12px; font-weight: 700; line-height: 1;
+  cursor: default;
+}
+.att-present { background: #22c55e; color: #fff; }
+.att-absent  { background: #ef4444; color: #fff; }
+.att-none    { background: #e5e7eb; color: #9ca3af; font-weight: 400; }
 .rank-silver-row { background: rgba(109, 199, 204, 0.14) !important; }
 .rank-bronze-row { background: rgba(255, 110, 74, 0.1) !important; }
 
