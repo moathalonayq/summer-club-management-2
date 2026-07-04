@@ -19,5 +19,6 @@ router.post("/api/supervisor/scan", requireSupervisorApi, supervisorController.s
 router.post("/api/supervisor/tasks", requireSupervisorApi, supervisorController.setKnowledgeTaskStatus);
 router.get("/api/supervisor/task-config", requireSupervisorApi, supervisorController.getTaskConfig);
 router.post("/api/supervisor/task-config", requireSupervisorApi, supervisorController.saveTaskConfig);
+router.post("/api/supervisor/toggle-scores", requireSupervisorApi, supervisorController.toggleScoresVisible);
 
 module.exports = router;

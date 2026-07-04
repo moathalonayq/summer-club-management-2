@@ -49,6 +49,12 @@ function handleLogout(req, res) {
   });
 }
 
+/* -------- مساعد: قراءة إعداد scores_visible -------- */
+async function getScoresVisible() {
+  const [rows] = await pool.query("SELECT value FROM settings WHERE `key` = 'scores_visible'");
+  return !rows.length || rows[0].value === 'true';
+}
+
 /* -------- لوحة التحكم الرئيسية للمشرف -------- */
 async function showPanel(req, res, next) {
   try {
@@ -57,6 +63,7 @@ async function showPanel(req, res, next) {
     const students = await studentModel.getAllStudents();
     const groups = await groupModel.getAllGroupsSimple();
     const sessions = await sessionModel.getAllSessions();
+    const scoresVisible = await getScoresVisible();
 
     // جلب جميع سجلات الحضور ثم بناء map: { studentId: { sessionId: status } }
     const [attRows] = await pool.query("SELECT student_id, session_id, status FROM attendance");
@@ -73,6 +80,7 @@ async function showPanel(req, res, next) {
       groups,
       sessions,
       attendanceMap,
+      scoresVisible,
     });
   } catch (err) {
     next(err);
@@ -241,6 +249,18 @@ async function setKnowledgeTaskStatus(req, res, next) {
   }
 }
 
+/* -------- API: تبديل ظهور النقاط لعامة الزوار -------- */
+async function toggleScoresVisible(req, res, next) {
+  try {
+    const current = await getScoresVisible();
+    const next_val = current ? 'false' : 'true';
+    await pool.query("UPDATE settings SET value = ? WHERE `key` = 'scores_visible'", [next_val]);
+    res.json({ success: true, scoresVisible: next_val === 'true' });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   showLoginPage,
   handleLogin,
@@ -252,4 +272,5 @@ module.exports = {
   setKnowledgeTaskStatus,
   getTaskConfig,
   saveTaskConfig,
+  toggleScoresVisible,
 };

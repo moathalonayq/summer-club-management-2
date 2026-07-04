@@ -378,6 +378,15 @@ input, select { font-family: inherit; }
 
 .rank-gold-row { background: rgba(255, 213, 48, 0.16) !important; }
 
+/* صندوق التحكم في ظهور النقاط عالمياً */
+.scores-visibility-box {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  background: var(--cream); border: 2px solid var(--navy);
+  border-radius: var(--radius-md); padding: 14px 20px;
+  margin-bottom: 20px;
+}
+.scores-visibility-box strong { color: var(--navy); }
+
 /* رموز الحضور في جدول المشرفين */
 .att-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
 .att-dot {

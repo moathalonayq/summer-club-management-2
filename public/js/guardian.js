@@ -216,7 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
       saveToHistory(data.student.id, data.student.name, data.student.group_name);
       renderStudentProfile(
         data.student, data.groupRank, data.groupSize,
-        data.overallRank, data.totalStudents, detailsBox
+        data.overallRank, data.totalStudents, detailsBox,
+        data.scoresVisible !== false
       );
       detailsBox.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) {
@@ -261,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* -------------------------------------------------------
      رسم ملف الطالب
   ------------------------------------------------------- */
-  function renderStudentProfile(student, groupRank, groupSize, overallRank, totalStudents, container) {
+  function renderStudentProfile(student, groupRank, groupSize, overallRank, totalStudents, container, scoresVisible = true) {
     const att        = getAttendanceRate(student.attendance);
     const doneTasks  = student.knowledge_tasks.filter(t => t.done).length;
     const totalTasks = student.knowledge_tasks.length;
@@ -301,10 +302,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <!-- بطاقات ملخص النقاط -->
         <div class="profile-summary-cards">
+          ${scoresVisible ? `
           <div class="summary-card summary-total">
             <div class="summary-value">${student.total_points}</div>
             <div class="summary-label">إجمالي النقاط</div>
-          </div>
+          </div>` : ''}
           <div class="summary-card summary-att">
             <div class="summary-value ${att.rate >= 75 ? 'text-success' : att.rate >= 50 ? 'text-warning' : 'text-danger'}">${att.rate}%</div>
             <div class="summary-label">نسبة الحضور</div>
@@ -316,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- تفاصيل النقاط مع أشرطة تقدم -->
+        ${scoresVisible ? `
         <div class="section-block">
           <h4>📊 تفاصيل النقاط</h4>
           <div class="points-detail-list">
@@ -332,7 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="pd-value cultural-color">${student.cultural_points}</span>
             </div>
           </div>
-        </div>
+        </div>` : ''}
 
         <!-- الحضور مع شريط تقدم -->
         <div class="section-block">

@@ -6,6 +6,7 @@
 
 const studentModel = require("../models/studentModel");
 const sessionModel = require("../models/sessionModel");
+const pool = require("../config/db");
 
 async function showGuardianPage(req, res, next) {
   try {
@@ -57,6 +58,9 @@ async function getStudentDetails(req, res, next) {
 
     const { rank: overallRank, total: totalStudents } = await studentModel.getStudentRankOverall(student.id);
 
+    const [svRows] = await pool.query("SELECT value FROM settings WHERE `key` = 'scores_visible'");
+    const scoresVisible = !svRows.length || svRows[0].value === 'true';
+
     res.json({
       success: true,
       student,
@@ -64,6 +68,7 @@ async function getStudentDetails(req, res, next) {
       groupSize,
       overallRank,
       totalStudents,
+      scoresVisible,
     });
   } catch (err) {
     next(err);

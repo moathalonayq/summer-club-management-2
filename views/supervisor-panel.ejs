@@ -133,6 +133,18 @@
     <!-- =========================================================
          جدول كل الطلاب + باركود كل طالب
          ========================================================= -->
+    <!-- زر إخفاء النقاط عالمياً -->
+    <div class="scores-visibility-box">
+      <div>
+        <strong>حالة النقاط للزوار:</strong>
+        <span id="scoresStatusText"><%= scoresVisible ? 'ظاهرة ✅' : 'مخفية 🔒' %></span>
+      </div>
+      <button type="button" id="globalToggleScoresBtn" class="btn <%= scoresVisible ? 'btn-danger-outline' : 'btn-primary' %>">
+        <%= scoresVisible ? '🔒 إخفاء النقاط عن الجميع' : '✅ إظهار النقاط للجميع' %>
+      </button>
+      <p class="form-msg" id="scoresToggleMsg" style="margin:0;"></p>
+    </div>
+
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
       <h4 class="table-section-title" style="margin-bottom:0;">جميع الطلاب وباركود كل طالب</h4>
       <button type="button" id="toggleScoresBtn" class="btn btn-outline btn-small">إخفاء النقاط</button>

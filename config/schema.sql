@@ -136,7 +136,8 @@ INSERT INTO settings (`key`, value) VALUES
   ('total_weeks', '3'),
   ('days_per_week', '3'),
   ('season_name', 'الموسم 2026'),
-  ('season_start_date', '2026-07-13');
+  ('season_start_date', '2026-07-13'),
+  ('scores_visible', 'true');
 
 -- =========================================================
 -- جدول المشرفين (دعم رمز دخول ثابت + إمكانية تعدد المشرفين لاحقاً)

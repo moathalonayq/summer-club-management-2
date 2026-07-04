@@ -19,10 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBarcodeModal();
   setupScanner();
   setupToggleScores();
+  setupGlobalToggleScores();
 });
 
 /* =========================================================
-   زر إخفاء / إظهار أعمدة النقاط في جدول الطلاب
+   زر إخفاء / إظهار أعمدة النقاط في جدول المشرف فقط
    ========================================================= */
 function setupToggleScores() {
   const btn = document.getElementById("toggleScoresBtn");
@@ -34,6 +35,35 @@ function setupToggleScores() {
       el.style.display = hidden ? "none" : "";
     });
     btn.textContent = hidden ? "إظهار النقاط" : "إخفاء النقاط";
+  });
+}
+
+/* =========================================================
+   زر إخفاء / إظهار النقاط عالمياً لجميع الزوار
+   ========================================================= */
+function setupGlobalToggleScores() {
+  const btn = document.getElementById("globalToggleScoresBtn");
+  const msg = document.getElementById("scoresToggleMsg");
+  const statusText = document.getElementById("scoresStatusText");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/supervisor/toggle-scores", { method: "POST" });
+      const data = await res.json();
+      if (!data.success) throw new Error();
+      const visible = data.scoresVisible;
+      statusText.textContent = visible ? "ظاهرة ✅" : "مخفية 🔒";
+      btn.textContent = visible ? "🔒 إخفاء النقاط عن الجميع" : "✅ إظهار النقاط للجميع";
+      btn.className = "btn " + (visible ? "btn-danger-outline" : "btn-primary");
+      msg.textContent = visible ? "تم إظهار النقاط للجميع" : "تم إخفاء النقاط عن الزوار";
+      setTimeout(() => { msg.textContent = ""; }, 3000);
+    } catch {
+      msg.textContent = "حدث خطأ";
+    } finally {
+      btn.disabled = false;
+    }
   });
 }
 

@@ -4,6 +4,7 @@
    ========================================================= */
 
 const groupModel = require("../models/groupModel");
+const pool = require("../config/db");
 
 async function showGroupsPage(req, res, next) {
   try {
@@ -21,11 +22,15 @@ async function showGroupsPage(req, res, next) {
     const minorGroups = groupsWithMembers.filter((g) => g.category === "الأولوية");
     const majorGroups = groupsWithMembers.filter((g) => g.category === "الفئة العليا");
 
+    const [svRows] = await pool.query("SELECT value FROM settings WHERE `key` = 'scores_visible'");
+    const scoresVisible = !svRows.length || svRows[0].value === 'true';
+
     res.render("groups", {
       pageTitle: "المجموعات",
       activeNav: "groups",
       minorGroups,
       majorGroups,
+      scoresVisible,
     });
   } catch (err) {
     next(err);
