@@ -133,22 +133,22 @@
     <!-- =========================================================
          جدول كل الطلاب + باركود كل طالب
          ========================================================= -->
-    <!-- زر إخفاء النقاط عالمياً -->
+    <!-- زر إخفاء النقاط عالمياً (يؤثر على صفحة المجموعات وملف الطالب لجميع الزوار) -->
     <div class="scores-visibility-box">
-      <div>
-        <strong>حالة النقاط للزوار:</strong>
-        <span id="scoresStatusText"><%= scoresVisible ? 'ظاهرة ✅' : 'مخفية 🔒' %></span>
+      <div class="scores-status-info">
+        <strong>حالة نقاط الطلاب للزوار:</strong>
+        <span id="scoresStatusText" class="scores-status-badge <%= scoresVisible ? 'badge-visible' : 'badge-hidden' %>">
+          <%= scoresVisible ? 'ظاهرة ✅' : 'مخفية 🔒' %>
+        </span>
+        <small class="scores-status-hint">يؤثر على قسم المجموعات وملف الطالب</small>
       </div>
       <button type="button" id="globalToggleScoresBtn" class="btn <%= scoresVisible ? 'btn-danger-outline' : 'btn-primary' %>">
-        <%= scoresVisible ? '🔒 إخفاء النقاط عن الجميع' : '✅ إظهار النقاط للجميع' %>
+        <%= scoresVisible ? '🔒 إخفاء النقاط عن الزوار' : '✅ إظهار النقاط للزوار' %>
       </button>
       <p class="form-msg" id="scoresToggleMsg" style="margin:0;"></p>
     </div>
 
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-      <h4 class="table-section-title" style="margin-bottom:0;">جميع الطلاب وباركود كل طالب</h4>
-      <button type="button" id="toggleScoresBtn" class="btn btn-outline btn-small">إخفاء النقاط</button>
-    </div>
+    <h4 class="table-section-title">جميع الطلاب وباركود كل طالب</h4>
     <div class="data-table-wrapper">
       <table class="data-table" id="supervisorStudentTable">
         <thead>

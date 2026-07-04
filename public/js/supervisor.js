@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupKnowledgeTasksPanel();
   setupBarcodeModal();
   setupScanner();
-  setupToggleScores();
   setupGlobalToggleScores();
 });
 

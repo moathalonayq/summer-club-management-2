@@ -386,6 +386,14 @@ input, select { font-family: inherit; }
   margin-bottom: 20px;
 }
 .scores-visibility-box strong { color: var(--navy); }
+.scores-status-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.scores-status-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-weight: 700; font-size: 14px;
+}
+.badge-visible { background: #dcfce7; color: #166534; }
+.badge-hidden  { background: #fee2e2; color: #991b1b; }
+.scores-status-hint { color: #6b7280; font-size: 12px; }
 
 /* رموز الحضور في جدول المشرفين */
 .att-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
