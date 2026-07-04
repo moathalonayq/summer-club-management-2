@@ -78,14 +78,20 @@
 
     grid.innerHTML = groups.map((g, i) => {
       const medalClass = i === 0 ? 'medal-gold' : i === 1 ? 'medal-silver' : i === 2 ? 'medal-bronze' : '';
+      const totalDisplay = scoresVisible
+        ? `<div class="group-summary-total">${g.total_points.toLocaleString('ar')}</div>`
+        : '';
+      const subText = scoresVisible
+        ? `${g.member_count} طالب • المتوسط: ${g.avg_points} نقطة`
+        : `${g.member_count} طالب`;
       return `
         <div class="group-summary-card ${medalClass}" onclick="showStudents(${g.id})">
           <div class="group-summary-rank">${i + 1}</div>
           <div class="group-summary-info">
             <h4>${g.name}</h4>
-            <p>${g.member_count} طالب • المتوسط: ${g.avg_points} نقطة</p>
+            <p>${subText}</p>
           </div>
-          <div class="group-summary-total">${g.total_points.toLocaleString('ar')}</div>
+          ${totalDisplay}
         </div>
       `;
     }).join('');
@@ -127,7 +133,7 @@
           <div class="group-rank-badge">1</div>
           <div>
             <h3>${group.name}</h3>
-            <p class="group-sub">${group.member_count} طالب • إجمالي النقاط: ${group.total_points} • المتوسط: ${group.avg_points}</p>
+            <p class="group-sub">${group.member_count} طالب${scoresVisible ? ' • إجمالي النقاط: ' + group.total_points + ' • المتوسط: ' + group.avg_points : ''}</p>
           </div>
         </div>
         <table class="group-table">

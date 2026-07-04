@@ -254,7 +254,10 @@ async function toggleScoresVisible(req, res, next) {
   try {
     const current = await getScoresVisible();
     const next_val = current ? 'false' : 'true';
-    await pool.query("UPDATE settings SET value = ? WHERE `key` = 'scores_visible'", [next_val]);
+    await pool.query(
+      "INSERT INTO settings (`key`, value) VALUES ('scores_visible', ?) ON DUPLICATE KEY UPDATE value = ?",
+      [next_val, next_val]
+    );
     res.json({ success: true, scoresVisible: next_val === 'true' });
   } catch (err) {
     next(err);
