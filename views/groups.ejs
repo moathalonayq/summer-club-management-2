@@ -110,19 +110,18 @@
 
     const container = document.getElementById('groupDetailContainer');
     const scoreCols = scoresVisible
-      ? `<th class="col-score">معرفي</th><th class="col-score">رياضي</th><th class="col-score">ترفيهي</th>`
+      ? `<th class="col-score">معرفي</th><th class="col-score">رياضي</th><th class="col-score">ترفيهي</th><th class="col-total">الإجمالي</th>`
       : '';
     const rows = group.members.map((m, i) => {
       const rowClass = i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '';
       const scoreCells = scoresVisible
-        ? `<td class="col-score">${m.knowledge_points}</td><td class="col-score">${m.sports_points}</td><td class="col-score">${m.cultural_points}</td>`
+        ? `<td class="col-score">${m.knowledge_points}</td><td class="col-score">${m.sports_points}</td><td class="col-score">${m.cultural_points}</td><td class="col-total"><strong>${m.total_points}</strong></td>`
         : '';
       return `
         <tr class="${rowClass}">
           <td>${i + 1}</td>
           <td><a href="/guardian?student=${m.id}" class="student-link">${m.name}</a></td>
           ${scoreCells}
-          <td class="col-total"><strong>${m.total_points}</strong></td>
         </tr>
       `;
     }).join('');
@@ -137,7 +136,7 @@
           </div>
         </div>
         <table class="group-table">
-          <thead><tr><th>الترتيب</th><th>اسم الطالب</th>${scoreCols}<th class="col-total">الإجمالي</th></tr></thead>
+          <thead><tr><th>الترتيب</th><th>اسم الطالب</th>${scoreCols}</tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
