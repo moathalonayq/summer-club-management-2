@@ -60,7 +60,7 @@ async function getSettings() {
 /* -------- أسماء أيام النادي الثابتة الثلاثة (الاثنين/الثلاثاء/الأربعاء) بدون تكرار -------- */
 async function getClubDayNames() {
   const [rows] = await pool.query(
-    "SELECT day_name, MIN(session_date) AS first_date FROM sessions GROUP BY day_name ORDER BY first_date ASC"
+    "SELECT day_name, MIN(session_date) AS first_date FROM sessions WHERE week_number IN (1,2) GROUP BY day_name ORDER BY first_date ASC"
   );
   return rows.map((r) => r.day_name);
 }

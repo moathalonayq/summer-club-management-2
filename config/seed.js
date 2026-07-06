@@ -13,14 +13,16 @@ const path = require("path");
 const mysql = require("mysql2/promise");
 const { normalizeArabic } = require("../utils/arabicNormalize");
 
-// الفئة الصغرى: 3 مجموعات | الفئة العليا: 3 مجموعات (نفس الأسماء الحالية، فقط مقسَّمة)
+// الأولوية: 4 مجموعات | الفئة العليا: 4 مجموعات
 const GROUPS_WITH_CATEGORY = [
-  { name: "مجموعة الفرسان", category: "الأولوية" },
-  { name: "مجموعة النجباء", category: "الأولوية" },
-  { name: "مجموعة الصقور", category: "الأولوية" },
-  { name: "مجموعة الرواد", category: "الفئة العليا" },
-  { name: "مجموعة الأبطال", category: "الفئة العليا" },
-  { name: "مجموعة النخبة", category: "الفئة العليا" },
+  { name: "مجموعة البناء",  category: "الأولوية" },
+  { name: "مجموعة العطاء", category: "الأولوية" },
+  { name: "مجموعة النماء",  category: "الأولوية" },
+  { name: "مجموعة الإخاء", category: "الأولوية" },
+  { name: "مجموعة الطموح", category: "الفئة العليا" },
+  { name: "مجموعة الكفاح", category: "الفئة العليا" },
+  { name: "مجموعة الصروح", category: "الفئة العليا" },
+  { name: "مجموعة الفلاح", category: "الفئة العليا" },
 ];
 const GROUP_NAMES = GROUPS_WITH_CATEGORY.map((g) => g.name);
 
