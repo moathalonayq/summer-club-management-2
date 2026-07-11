@@ -12,6 +12,7 @@ const homeRoutes = require("./routes/homeRoutes");
 const guardianRoutes = require("./routes/guardianRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const supervisorRoutes = require("./routes/supervisorRoutes");
+const displayRoutes = require("./routes/displayRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +51,7 @@ app.use("/", homeRoutes);
 app.use("/", guardianRoutes);
 app.use("/", groupRoutes);
 app.use("/", supervisorRoutes);
+app.use("/", displayRoutes);
 
 /* -------- صفحة 404 -------- */
 app.use((req, res) => {
