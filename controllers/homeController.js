@@ -10,7 +10,7 @@ async function showHome(req, res, next) {
   try {
     const stats = await statsModel.getHomeStats();
     const settings = await statsModel.getSettings();
-    const topByCategory = await studentModel.getTopStudentsByCategory(5);
+    const topByCategory = await studentModel.getTopStudentsByCategory(10);
     const clubDays = await statsModel.getClubDayNames();
 
     res.render("home", {

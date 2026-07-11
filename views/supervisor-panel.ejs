@@ -133,7 +133,7 @@
     <!-- =========================================================
          جدول كل الطلاب + باركود كل طالب
          ========================================================= -->
-    <!-- زر إخفاء النقاط عالمياً (يؤثر على صفحة المجموعات وملف الطالب لجميع الزوار) -->
+    <!-- التحكم في إخفاء النقاط (محمي برمز 135) -->
     <div class="scores-visibility-box">
       <div class="scores-status-info">
         <strong>حالة نقاط الطلاب للزوار:</strong>
@@ -142,9 +142,12 @@
         </span>
         <small class="scores-status-hint">يؤثر على قسم المجموعات وملف الطالب</small>
       </div>
-      <button type="button" id="globalToggleScoresBtn" class="btn <%= scoresVisible ? 'btn-danger-outline' : 'btn-primary' %>">
-        <%= scoresVisible ? '🔒 إخفاء النقاط عن الزوار' : '✅ إظهار النقاط للزوار' %>
-      </button>
+      <div class="scores-pin-area">
+        <input type="password" id="scoresPinInput" class="form-input scores-pin-input" placeholder="أدخل الرمز..." maxlength="6" autocomplete="off">
+        <button type="button" id="globalToggleScoresBtn" class="btn <%= scoresVisible ? 'btn-danger-outline' : 'btn-primary' %>">
+          <%= scoresVisible ? '🔒 إخفاء النقاط' : '✅ إظهار النقاط' %>
+        </button>
+      </div>
       <p class="form-msg" id="scoresToggleMsg" style="margin:0;"></p>
     </div>
 

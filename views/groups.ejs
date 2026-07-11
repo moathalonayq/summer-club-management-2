@@ -17,7 +17,7 @@
         </div>
         <div class="category-select-card minor" onclick="showGroups('الأولوية')">
           <span class="cat-icon">🌠</span>
-          <h3>الفئة الأولوية</h3>
+          <h3>الفئة الأولية</h3>
           <p><%= minorGroups.length %> مجموعات</p>
         </div>
       </div>
@@ -96,9 +96,10 @@
       `;
     }).join('');
 
+    const categoryLabel = category === 'الأولوية' ? 'الأولية' : category;
     updateBreadcrumb([
       { label: 'المجموعات', fn: "backToCategories()" },
-      { label: category }
+      { label: categoryLabel }
     ]);
     showLevel('levelGroups');
   }
@@ -142,9 +143,10 @@
       </div>
     `;
 
+    const catLabel = currentCategory === 'الأولوية' ? 'الأولية' : currentCategory;
     updateBreadcrumb([
       { label: 'المجموعات', fn: "backToCategories()" },
-      { label: currentCategory, fn: `showGroups('${currentCategory}')` },
+      { label: catLabel, fn: `showGroups('${currentCategory}')` },
       { label: group.name }
     ]);
     showLevel('levelStudents');

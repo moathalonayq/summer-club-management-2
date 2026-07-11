@@ -394,6 +394,8 @@ input, select { font-family: inherit; }
 .badge-visible { background: #dcfce7; color: #166534; }
 .badge-hidden  { background: #fee2e2; color: #991b1b; }
 .scores-status-hint { color: #6b7280; font-size: 12px; }
+.scores-pin-area { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.scores-pin-input { width: 110px; text-align: center; letter-spacing: 4px; font-size: 16px; font-weight: 700; }
 
 /* رموز الحضور في جدول المشرفين */
 .att-dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
@@ -623,14 +625,14 @@ input, select { font-family: inherit; }
   background: var(--cream-dark);
 }
 
-/* ألوان متبادلة لعمود الإجمالي بين الصفوف */
-.group-table tbody tr:nth-child(odd) .col-total  { background: #dce8f5; color: #1a3a5c; }
-.group-table tbody tr:nth-child(even) .col-total { background: #c8dff0; color: #0f2644; }
+/* ألوان موحدة لكل صف (الكل بنفس اللون بما فيه الإجمالي) */
+.group-table tbody tr:nth-child(odd)  td { background: #edf4fb; }
+.group-table tbody tr:nth-child(even) td { background: #daeaf7; }
 
-/* أول 3 صفوف تحتفظ بألوانها الذهبية/الفضية/البرونزية في الاسم فقط */
-.group-table tbody tr.rank-gold-row   td:not(.col-total) { background: rgba(255,213,48,0.13); }
-.group-table tbody tr.rank-silver-row td:not(.col-total) { background: rgba(180,180,180,0.13); }
-.group-table tbody tr.rank-bronze-row td:not(.col-total) { background: rgba(200,130,50,0.10); }
+/* أول 3 صفوف: ألوان مميزة موحدة على كامل الصف */
+.group-table tbody tr.rank-gold-row   td { background: rgba(255, 213, 48, 0.20) !important; }
+.group-table tbody tr.rank-silver-row td { background: rgba(180, 180, 180, 0.22) !important; }
+.group-table tbody tr.rank-bronze-row td { background: rgba(200, 130, 50, 0.15) !important; }
 
 .group-table th.col-total { color: var(--navy); }
 

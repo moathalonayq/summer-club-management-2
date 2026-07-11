@@ -40,13 +40,25 @@ function setupToggleScores() {
 /* =========================================================
    زر إخفاء / إظهار النقاط عالمياً لجميع الزوار
    ========================================================= */
+const SCORES_PIN = "135";
+
 function setupGlobalToggleScores() {
   const btn = document.getElementById("globalToggleScoresBtn");
   const msg = document.getElementById("scoresToggleMsg");
   const statusText = document.getElementById("scoresStatusText");
+  const pinInput = document.getElementById("scoresPinInput");
   if (!btn) return;
 
   btn.addEventListener("click", async () => {
+    const pin = pinInput ? pinInput.value.trim() : "";
+    if (pin !== SCORES_PIN) {
+      msg.textContent = "❌ الرمز غير صحيح";
+      msg.style.color = "#dc2626";
+      if (pinInput) { pinInput.value = ""; pinInput.focus(); }
+      setTimeout(() => { msg.textContent = ""; msg.style.color = ""; }, 2500);
+      return;
+    }
+
     btn.disabled = true;
     try {
       const res = await fetch("/api/supervisor/toggle-scores", { method: "POST" });
@@ -54,16 +66,27 @@ function setupGlobalToggleScores() {
       if (!data.success) throw new Error();
       const visible = data.scoresVisible;
       statusText.textContent = visible ? "ظاهرة ✅" : "مخفية 🔒";
-      btn.textContent = visible ? "🔒 إخفاء النقاط عن الجميع" : "✅ إظهار النقاط للجميع";
+      statusText.className = "scores-status-badge " + (visible ? "badge-visible" : "badge-hidden");
+      btn.textContent = visible ? "🔒 إخفاء النقاط" : "✅ إظهار النقاط";
       btn.className = "btn " + (visible ? "btn-danger-outline" : "btn-primary");
-      msg.textContent = visible ? "تم إظهار النقاط للجميع" : "تم إخفاء النقاط عن الزوار";
-      setTimeout(() => { msg.textContent = ""; }, 3000);
+      msg.style.color = "#16a34a";
+      msg.textContent = visible ? "✅ تم إظهار النقاط للزوار" : "🔒 تم إخفاء النقاط عن الزوار";
+      if (pinInput) pinInput.value = "";
+      setTimeout(() => { msg.textContent = ""; msg.style.color = ""; }, 3000);
     } catch {
       msg.textContent = "حدث خطأ";
+      msg.style.color = "#dc2626";
     } finally {
       btn.disabled = false;
     }
   });
+
+  // إرسال بالضغط على Enter في حقل الرمز
+  if (pinInput) {
+    pinInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") btn.click();
+    });
+  }
 }
 
 /* =========================================================
