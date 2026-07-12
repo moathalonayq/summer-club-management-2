@@ -65,9 +65,9 @@ async function getStudentById(id) {
   student.initiatives = initiativesRows;
   student.attendance = attendanceRows;
   student.initiatives_points = initiativesRows.reduce((sum, i) => sum + i.points, 0);
-  // الإجمالي المعروض يعتمد على البرامج الثلاثة فقط (معرفي/رياضي/ترفيهي)
-  // نقاط المبادرات تُحتسب فقط عند تقييم الترتيب (انظر getStudentRankOverall/getStudentRankInGroup)
-  student.total_points = student.knowledge_points + student.sports_points + student.cultural_points;
+  // إجمالي الملف الشخصي فقط يضم نقاط المبادرات (بخلاف إجمالي جدول المجموعة الذي يستثنيها)
+  student.total_points = student.knowledge_points + student.sports_points
+    + student.cultural_points + student.initiatives_points;
 
   return student;
 }
