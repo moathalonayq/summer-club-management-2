@@ -12,7 +12,12 @@ const studentModel = require("../models/studentModel");
 const groupModel = require("../models/groupModel");
 const sessionModel = require("../models/sessionModel");
 
-const SUPERVISOR_ACCESS_CODE = process.env.SUPERVISOR_ACCESS_CODE || "991";
+// الإدارة: تحكم كامل (كل ما كان متاحاً سابقاً بدون أي تعديل)
+// المشرفون: تحضير (باركود + يدوي) + إضافة نقاط مبادرة فقط مع سبب إلزامي
+// الرمزان يُضبَطان فقط عبر متغيرات البيئة (.env محلياً / متغيرات Railway في الإنتاج)
+// ولا يوجد لهما أي قيمة افتراضية مكتوبة في الكود لتجنّب نشرها في المستودع العام
+const ADMIN_ACCESS_CODE = process.env.ADMIN_ACCESS_CODE || "";
+const SUPERVISOR_ACCESS_CODE = process.env.SUPERVISOR_ACCESS_CODE || "";
 
 /* -------- صفحة تسجيل الدخول -------- */
 function showLoginPage(req, res) {
@@ -26,12 +31,17 @@ function showLoginPage(req, res) {
   });
 }
 
-/* -------- معالجة تسجيل الدخول -------- */
+/* -------- معالجة تسجيل الدخول (يحدَّد الدور من الرمز نفسه) -------- */
 function handleLogin(req, res) {
   const { accessCode } = req.body;
 
-  if (accessCode === SUPERVISOR_ACCESS_CODE) {
+  let role = null;
+  if (accessCode && ADMIN_ACCESS_CODE && accessCode === ADMIN_ACCESS_CODE) role = "admin";
+  else if (accessCode && SUPERVISOR_ACCESS_CODE && accessCode === SUPERVISOR_ACCESS_CODE) role = "supervisor";
+
+  if (role) {
     req.session.isSupervisor = true;
+    req.session.role = role;
     return res.redirect("/supervisor/panel");
   }
 
@@ -76,6 +86,7 @@ async function showPanel(req, res, next) {
     res.render("supervisor-panel", {
       pageTitle: "لوحة المشرفين",
       activeNav: "supervisor",
+      role: req.session.role || "admin",
       students,
       groups,
       sessions,
@@ -97,6 +108,16 @@ async function addPoints(req, res, next) {
 
     if (!studentIdNum || !amountNum || amountNum <= 0) {
       return res.status(400).json({ success: false, message: "أدخل بيانات صحيحة" });
+    }
+
+    // دور "المشرفين" المحدود: مبادرة فقط، وبسبب إلزامي (يمنع التلاعب من العميل)
+    if (req.session.role !== "admin") {
+      if (program !== "initiative") {
+        return res.status(403).json({ success: false, message: "يمكنك فقط إضافة نقاط مبادرة / إنجاز مميز" });
+      }
+      if (!reason || !reason.trim()) {
+        return res.status(400).json({ success: false, message: "سبب المبادرة إلزامي" });
+      }
     }
 
     // mode: "add" إضافة أو "subtract" خصم

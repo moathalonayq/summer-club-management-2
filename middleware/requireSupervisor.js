@@ -19,4 +19,12 @@ function requireSupervisorApi(req, res, next) {
   return res.status(401).json({ success: false, message: "يجب تسجيل الدخول كمشرف أولاً" });
 }
 
-module.exports = { requireSupervisorPage, requireSupervisorApi };
+// مسارات خاصة بالإدارة فقط (رمز 13578) — يمنع دور "المشرفين" المحدود
+function requireAdminApi(req, res, next) {
+  if (req.session && req.session.isSupervisor && req.session.role === "admin") {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "هذا الإجراء متاح للإدارة فقط" });
+}
+
+module.exports = { requireSupervisorPage, requireSupervisorApi, requireAdminApi };

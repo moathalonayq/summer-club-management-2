@@ -2,18 +2,36 @@
 
   <section class="app-section active">
     <h2 class="section-title">لوحة المشرفين</h2>
-    <p class="section-desc">أدخل رمز الدخول الخاص بالمشرفين للوصول إلى لوحة التحكم</p>
+    <p class="section-desc">اختر نوع الدخول ثم أدخل رمز الدخول الخاص به</p>
 
-    <div class="supervisor-login">
-      <h3>تسجيل دخول المشرف</h3>
+    <!-- المستوى 1: اختيار الدور -->
+    <div id="roleSelectLevel" class="category-cards-grid">
+      <div class="category-select-card major" onclick="selectRole('admin', 'الإدارة')">
+        <span class="cat-icon">🛡️</span>
+        <h3>الإدارة</h3>
+        <p>تحكم كامل بكل شيء</p>
+      </div>
+      <div class="category-select-card minor" onclick="selectRole('supervisor', 'المشرفين')">
+        <span class="cat-icon">👤</span>
+        <h3>المشرفين</h3>
+        <p>تحضير + نقاط مبادرة فقط</p>
+      </div>
+    </div>
+
+    <!-- المستوى 2: نموذج رمز الدخول -->
+    <div class="supervisor-login hidden" id="loginFormLevel">
+      <h3 id="loginFormTitle">تسجيل الدخول</h3>
       <p>أدخل رمز الدخول للوصول إلى لوحة التحكم</p>
 
       <form method="POST" action="/supervisor/login">
         <div class="form-group">
           <label for="accessCode">رمز الدخول</label>
-          <input type="password" name="accessCode" id="accessCode" class="form-input" placeholder="••••••••" autofocus required>
+          <input type="password" name="accessCode" id="accessCode" class="form-input" placeholder="••••••••" autocomplete="off" required>
         </div>
-        <button type="submit" class="btn btn-primary">دخول</button>
+        <div class="form-group" style="display:flex; gap:10px;">
+          <button type="submit" class="btn btn-primary" style="flex:1;">دخول</button>
+          <button type="button" class="btn btn-outline" style="flex:1;" onclick="backToRoleSelect()">رجوع</button>
+        </div>
         <% if (error) { %>
           <p class="error-text"><%= error %></p>
         <% } %>
@@ -22,3 +40,22 @@
   </section>
 
 <%- include('partials/footer') %>
+
+<script>
+  function selectRole(role, label) {
+    document.getElementById('roleSelectLevel').classList.add('hidden');
+    document.getElementById('loginFormLevel').classList.remove('hidden');
+    document.getElementById('loginFormTitle').textContent = 'تسجيل دخول ' + label;
+    document.getElementById('accessCode').value = '';
+    document.getElementById('accessCode').focus();
+  }
+  function backToRoleSelect() {
+    document.getElementById('loginFormLevel').classList.add('hidden');
+    document.getElementById('roleSelectLevel').classList.remove('hidden');
+  }
+  <% if (error) { %>
+    // إظهار نموذج تسجيل الدخول مباشرة إذا كان هناك خطأ سابق (بعد محاولة فاشلة)
+    document.getElementById('roleSelectLevel').classList.add('hidden');
+    document.getElementById('loginFormLevel').classList.remove('hidden');
+  <% } %>
+</script>

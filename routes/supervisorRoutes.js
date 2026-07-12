@@ -4,7 +4,7 @@
 const express = require("express");
 const router = express.Router();
 const supervisorController = require("../controllers/supervisorController");
-const { requireSupervisorPage, requireSupervisorApi } = require("../middleware/requireSupervisor");
+const { requireSupervisorPage, requireSupervisorApi, requireAdminApi } = require("../middleware/requireSupervisor");
 
 /* -------- صفحات -------- */
 router.get("/supervisor/login", supervisorController.showLoginPage);
@@ -16,9 +16,9 @@ router.get("/supervisor/panel", requireSupervisorPage, supervisorController.show
 router.post("/api/supervisor/points", requireSupervisorApi, supervisorController.addPoints);
 router.post("/api/supervisor/attendance", requireSupervisorApi, supervisorController.markAttendanceManual);
 router.post("/api/supervisor/scan", requireSupervisorApi, supervisorController.scanBarcodeAttendance);
-router.post("/api/supervisor/tasks", requireSupervisorApi, supervisorController.setKnowledgeTaskStatus);
-router.get("/api/supervisor/task-config", requireSupervisorApi, supervisorController.getTaskConfig);
-router.post("/api/supervisor/task-config", requireSupervisorApi, supervisorController.saveTaskConfig);
-router.post("/api/supervisor/toggle-scores", requireSupervisorApi, supervisorController.toggleScoresVisible);
+router.post("/api/supervisor/tasks", requireAdminApi, supervisorController.setKnowledgeTaskStatus);
+router.get("/api/supervisor/task-config", requireAdminApi, supervisorController.getTaskConfig);
+router.post("/api/supervisor/task-config", requireAdminApi, supervisorController.saveTaskConfig);
+router.post("/api/supervisor/toggle-scores", requireAdminApi, supervisorController.toggleScoresVisible);
 
 module.exports = router;

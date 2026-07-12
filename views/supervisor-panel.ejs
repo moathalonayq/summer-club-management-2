@@ -2,7 +2,7 @@
 
   <section class="app-section active">
     <div class="supervisor-panel-header">
-      <h3 class="panel-welcome">مرحباً بك أيها المشرف</h3>
+      <h3 class="panel-welcome">مرحباً بك، <%= role === 'admin' ? 'أيها المدير' : 'أيها المشرف' %></h3>
       <form method="POST" action="/supervisor/logout">
         <button type="submit" class="btn btn-outline btn-small">تسجيل الخروج</button>
       </form>
@@ -25,19 +25,25 @@
           </div>
           <div class="form-group">
             <label for="programSelect">اللجنة / البرنامج</label>
-            <select id="programSelect" class="form-select">
-              <option value="sports">البرنامج الرياضي</option>
-              <option value="cultural">البرنامج الترفيهي</option>
-              <option value="initiative">مبادرة / إنجاز مميز</option>
-            </select>
+            <% if (role === 'admin') { %>
+              <select id="programSelect" class="form-select">
+                <option value="sports">البرنامج الرياضي</option>
+                <option value="cultural">البرنامج الترفيهي</option>
+                <option value="initiative">مبادرة / إنجاز مميز</option>
+              </select>
+            <% } else { %>
+              <select id="programSelect" class="form-select" disabled>
+                <option value="initiative" selected>مبادرة / إنجاز مميز</option>
+              </select>
+            <% } %>
           </div>
           <div class="form-group">
             <label for="pointsAmount">عدد النقاط</label>
             <input type="number" id="pointsAmount" class="form-input" min="1" placeholder="مثال: 5">
           </div>
           <div class="form-group">
-            <label for="pointsReason">السبب / الوصف (اختياري)</label>
-            <input type="text" id="pointsReason" class="form-input" placeholder="مثال: تفوق في الاختبار الشهري">
+            <label for="pointsReason">السبب / الوصف<%= role === 'admin' ? ' (اختياري)' : ' (إلزامي)' %></label>
+            <input type="text" id="pointsReason" class="form-input" placeholder="مثال: تفوق في الاختبار الشهري" <%= role === 'admin' ? '' : 'required' %>>
           </div>
 
           <div class="form-group" style="display:flex; gap:10px;">
@@ -89,6 +95,7 @@
          الطالب يُخبر المشرف شفهياً/شخصياً بإنجاز متطلب معين،
          والمشرف هو من يحدّد ذلك هنا (وليس الطالب تلقائياً)
          ========================================================= -->
+    <% if (role === 'admin') { %>
     <!-- إعداد نقاط المتطلبات عالمياً (مرة واحدة لكل المتطلبات) -->
     <div class="panel-box knowledge-tasks-box">
       <h4>⚙️ ضبط نقاط متطلبات البرنامج المعرفي</h4>
@@ -112,6 +119,7 @@
       <div id="knowledgeTasksList" class="knowledge-tasks-list"></div>
       <p class="form-msg" id="tasksMsg"></p>
     </div>
+    <% } %>
 
     <!-- =========================================================
          مسح الباركود لتسجيل الحضور التلقائي
@@ -133,6 +141,7 @@
     <!-- =========================================================
          جدول كل الطلاب + باركود كل طالب
          ========================================================= -->
+    <% if (role === 'admin') { %>
     <!-- التحكم في إخفاء النقاط (محمي برمز 135) -->
     <div class="scores-visibility-box">
       <div class="scores-status-info">
@@ -150,6 +159,7 @@
       </div>
       <p class="form-msg" id="scoresToggleMsg" style="margin:0;"></p>
     </div>
+    <% } %>
 
     <h4 class="table-section-title">جميع الطلاب وباركود كل طالب</h4>
     <div class="data-table-wrapper">
