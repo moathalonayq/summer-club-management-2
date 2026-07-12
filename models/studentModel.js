@@ -15,9 +15,7 @@ async function getAllStudents() {
       s.knowledge_points, s.sports_points, s.cultural_points,
       g.id AS group_id, g.name AS group_name,
       COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0) AS initiatives_points,
-      (s.knowledge_points + s.sports_points + s.cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
-      ) AS total_points,
+      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points,
       COALESCE((SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.status IN ('حاضر','متأخر')), 0) AS attendance_count
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
@@ -90,9 +88,7 @@ async function searchStudentsByName(query) {
     SELECT
       s.id, s.barcode, s.name,
       g.name AS group_name,
-      (s.knowledge_points + s.sports_points + s.cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
-      ) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     WHERE s.name_normalized LIKE ? OR s.name LIKE ?
@@ -107,9 +103,7 @@ async function getTopStudents(limit = 10) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name, g.name AS group_name,
-      (s.knowledge_points + s.sports_points + s.cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
-      ) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     ORDER BY total_points DESC
@@ -123,9 +117,7 @@ async function getTopStudentsByCategory(limit = 5) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name, g.name AS group_name, g.category,
-      (s.knowledge_points + s.sports_points + s.cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
-      ) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     ORDER BY g.category ASC, total_points DESC
@@ -142,10 +134,7 @@ async function getTopStudentsByCategory(limit = 5) {
 /* -------- الترتيب العام للطالب بين جميع الطلاب -------- */
 async function getStudentRankOverall(studentId) {
   const [rows] = await pool.query(`
-    SELECT id,
-      (knowledge_points + sports_points + cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
-      ) AS total_points
+    SELECT id, (knowledge_points + sports_points + cultural_points) AS total_points
     FROM students
     ORDER BY total_points DESC
   `);
@@ -156,10 +145,7 @@ async function getStudentRankOverall(studentId) {
 /* -------- ترتيب طالب داخل مجموعته فقط (تُستخدم في بوابة ولي الأمر) -------- */
 async function getStudentRankInGroup(studentId, groupId) {
   const [rows] = await pool.query(`
-    SELECT id, name,
-      (knowledge_points + sports_points + cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
-      ) AS total_points
+    SELECT id, name, (knowledge_points + sports_points + cultural_points) AS total_points
     FROM students
     WHERE group_id = ?
     ORDER BY total_points DESC
