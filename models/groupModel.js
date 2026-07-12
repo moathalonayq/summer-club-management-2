@@ -39,7 +39,10 @@ async function getRankedGroupsByCategory() {
   return categories;
 }
 
-/* -------- أعضاء مجموعة معينة مرتبين حسب نقاطهم -------- */
+/* -------- أعضاء مجموعة معينة مرتبين حسب نقاطهم --------
+   ملاحظة: الترتيب (ORDER BY) يحتسب نقاط المبادرة أيضاً كي يتطابق
+   مع ترتيب الطالب الظاهر في ملفه الشخصي، لكن عمود "الإجمالي"
+   المعروض هنا يبقى بدون المبادرة (معرفي+رياضي+ترفيهي فقط) */
 async function getGroupMembers(groupId) {
   const [rows] = await pool.query(`
     SELECT
@@ -49,7 +52,9 @@ async function getGroupMembers(groupId) {
       (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
     FROM students s
     WHERE s.group_id = ?
-    ORDER BY total_points DESC
+    ORDER BY (s.knowledge_points + s.sports_points + s.cultural_points
+      + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
+    ) DESC
   `, [groupId]);
   return rows;
 }
