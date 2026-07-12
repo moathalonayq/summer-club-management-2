@@ -642,6 +642,18 @@ input, select { font-family: inherit; }
   color: var(--ink);
 }
 
+/* عمود المبادرة: مميز بلون ذهبي ومنفصل بحد جانبي حتى لا يُلخبط مع الإجمالي */
+.group-table th.col-initiative,
+.group-table td.col-initiative {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b7791f;
+  border-left: 2px dashed var(--cream-dark);
+}
+
+.group-table th.col-initiative { background: #fdf3e0; }
+
 .student-link {
   color: var(--navy);
   font-weight: 600;

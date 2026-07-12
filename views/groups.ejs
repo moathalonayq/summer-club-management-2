@@ -111,12 +111,12 @@
 
     const container = document.getElementById('groupDetailContainer');
     const scoreCols = scoresVisible
-      ? `<th class="col-score">معرفي</th><th class="col-score">رياضي</th><th class="col-score">ترفيهي</th><th class="col-score">مبادرة</th><th class="col-total">الإجمالي</th>`
+      ? `<th class="col-initiative">🌟 مبادرة</th><th class="col-score">معرفي</th><th class="col-score">رياضي</th><th class="col-score">ترفيهي</th><th class="col-total">الإجمالي</th>`
       : '';
     const rows = group.members.map((m, i) => {
       const rowClass = i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '';
       const scoreCells = scoresVisible
-        ? `<td class="col-score">${m.knowledge_points}</td><td class="col-score">${m.sports_points}</td><td class="col-score">${m.cultural_points}</td><td class="col-score">${m.initiatives_points}</td><td class="col-total"><strong>${m.total_points}</strong></td>`
+        ? `<td class="col-initiative">${m.initiatives_points > 0 ? '+' + m.initiatives_points : '—'}</td><td class="col-score">${m.knowledge_points}</td><td class="col-score">${m.sports_points}</td><td class="col-score">${m.cultural_points}</td><td class="col-total"><strong>${m.total_points}</strong></td>`
         : '';
       return `
         <tr class="${rowClass}">
