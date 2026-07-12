@@ -45,6 +45,7 @@ async function getGroupMembers(groupId) {
     SELECT
       s.id, s.name,
       s.knowledge_points, s.sports_points, s.cultural_points,
+      COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0) AS initiatives_points,
       (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
     FROM students s
     WHERE s.group_id = ?

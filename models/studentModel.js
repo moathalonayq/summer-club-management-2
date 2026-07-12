@@ -65,8 +65,9 @@ async function getStudentById(id) {
   student.initiatives = initiativesRows;
   student.attendance = attendanceRows;
   student.initiatives_points = initiativesRows.reduce((sum, i) => sum + i.points, 0);
-  student.total_points = student.knowledge_points + student.sports_points
-    + student.cultural_points + student.initiatives_points;
+  // الإجمالي المعروض يعتمد على البرامج الثلاثة فقط (معرفي/رياضي/ترفيهي)
+  // نقاط المبادرات تُحتسب فقط عند تقييم الترتيب (انظر getStudentRankOverall/getStudentRankInGroup)
+  student.total_points = student.knowledge_points + student.sports_points + student.cultural_points;
 
   return student;
 }
@@ -133,8 +134,12 @@ async function getTopStudentsByCategory(limit = 5) {
 
 /* -------- الترتيب العام للطالب بين جميع الطلاب -------- */
 async function getStudentRankOverall(studentId) {
+  // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
-    SELECT id, (knowledge_points + sports_points + cultural_points) AS total_points
+    SELECT id,
+      (knowledge_points + sports_points + cultural_points
+        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
+      ) AS total_points
     FROM students
     ORDER BY total_points DESC
   `);
@@ -144,8 +149,12 @@ async function getStudentRankOverall(studentId) {
 
 /* -------- ترتيب طالب داخل مجموعته فقط (تُستخدم في بوابة ولي الأمر) -------- */
 async function getStudentRankInGroup(studentId, groupId) {
+  // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
-    SELECT id, name, (knowledge_points + sports_points + cultural_points) AS total_points
+    SELECT id, name,
+      (knowledge_points + sports_points + cultural_points
+        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
+      ) AS total_points
     FROM students
     WHERE group_id = ?
     ORDER BY total_points DESC
