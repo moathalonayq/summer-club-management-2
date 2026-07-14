@@ -39,7 +39,17 @@
           </div>
           <div class="form-group">
             <label for="pointsAmount">عدد النقاط</label>
-            <input type="number" id="pointsAmount" class="form-input" min="1" placeholder="مثال: 5">
+            <select id="pointsAmount" class="form-select">
+              <option value="">اختر عدد النقاط</option>
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+              <option value="35">35</option>
+              <option value="40">40</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="pointsReason">السبب / الوصف<%= role === 'admin' ? ' (اختياري)' : ' (إلزامي)' %></label>
