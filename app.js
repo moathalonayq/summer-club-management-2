@@ -34,7 +34,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 8, // 8 ساعات
+    maxAge: 1000 * 60 * 60 * 24 * 30, // 30 يوماً
     secure: process.env.NODE_ENV === "production",
   },
 }));
