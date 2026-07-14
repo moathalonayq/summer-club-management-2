@@ -30,7 +30,7 @@ async function getStudentById(id) {
     SELECT
       s.id, s.barcode, s.name, s.guardian_phone,
       s.knowledge_points, s.sports_points, s.cultural_points,
-      g.id AS group_id, g.name AS group_name
+      g.id AS group_id, g.name AS group_name, g.category AS group_category
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     WHERE s.id = ?
@@ -132,17 +132,19 @@ async function getTopStudentsByCategory(limit = 5) {
   return byCategory;
 }
 
-/* -------- الترتيب العام للطالب بين جميع الطلاب -------- */
-async function getStudentRankOverall(studentId) {
+/* -------- الترتيب العام للطالب بين طلاب فئته فقط (الأولوية أو الفئة العليا) -------- */
+async function getStudentRankOverall(studentId, category) {
   // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
-    SELECT id,
-      (knowledge_points + sports_points + cultural_points
-        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
+    SELECT s.id,
+      (s.knowledge_points + s.sports_points + s.cultural_points
+        + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
       ) AS total_points
-    FROM students
+    FROM students s
+    JOIN \`groups\` g ON g.id = s.group_id
+    WHERE g.category = ?
     ORDER BY total_points DESC
-  `);
+  `, [category]);
   const rank = rows.findIndex((s) => s.id === studentId) + 1;
   return { rank, total: rows.length };
 }
