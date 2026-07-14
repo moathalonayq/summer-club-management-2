@@ -19,7 +19,23 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBarcodeModal();
   setupScanner();
   setupGlobalToggleScores();
+  autoStartScanIfRequested();
 });
+
+/* =========================================================
+   0.5) فتح الكاميرا تلقائياً عند الوصول عبر رابط ?scan=1
+   (اختصار سريع للتحضير بدون الحاجة للنزول والضغط يدوياً)
+   ========================================================= */
+function autoStartScanIfRequested() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("scan") !== "1") return;
+
+  const scanBtn = document.getElementById("startScanBtn");
+  if (!scanBtn) return;
+
+  scanBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+  scanBtn.click();
+}
 
 /* =========================================================
    زر إخفاء / إظهار أعمدة النقاط في جدول المشرف فقط

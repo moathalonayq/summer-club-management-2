@@ -8,7 +8,8 @@ function requireSupervisorPage(req, res, next) {
   if (req.session && req.session.isSupervisor) {
     return next();
   }
-  return res.redirect("/supervisor/login");
+  // نحفظ الوجهة الأصلية (مثل رابط التحضير السريع ?scan=1) للعودة إليها بعد الدخول
+  return res.redirect("/supervisor/login?next=" + encodeURIComponent(req.originalUrl));
 }
 
 // لاستخدامه في مسارات API (يرجع خطأ JSON بدلاً من إعادة توجيه)

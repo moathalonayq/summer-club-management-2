@@ -19,21 +19,30 @@ const sessionModel = require("../models/sessionModel");
 const ADMIN_ACCESS_CODE = process.env.ADMIN_ACCESS_CODE || "";
 const SUPERVISOR_ACCESS_CODE = process.env.SUPERVISOR_ACCESS_CODE || "";
 
+// يقبل فقط مسارات داخلية تحت /supervisor/panel لمنع open-redirect عبر ?next=
+function safeNextPath(next) {
+  if (typeof next === "string" && next.startsWith("/supervisor/panel")) return next;
+  return "/supervisor/panel";
+}
+
 /* -------- صفحة تسجيل الدخول -------- */
 function showLoginPage(req, res) {
+  const next = safeNextPath(req.query.next);
   if (req.session && req.session.isSupervisor) {
-    return res.redirect("/supervisor/panel");
+    return res.redirect(next);
   }
   res.render("supervisor-login", {
     pageTitle: "دخول المشرفين",
     activeNav: "supervisor",
     error: null,
+    next,
   });
 }
 
 /* -------- معالجة تسجيل الدخول (يحدَّد الدور من الرمز نفسه) -------- */
 function handleLogin(req, res) {
   const { accessCode } = req.body;
+  const next = safeNextPath(req.body.next);
 
   let role = null;
   if (accessCode && ADMIN_ACCESS_CODE && accessCode === ADMIN_ACCESS_CODE) role = "admin";
@@ -42,13 +51,14 @@ function handleLogin(req, res) {
   if (role) {
     req.session.isSupervisor = true;
     req.session.role = role;
-    return res.redirect("/supervisor/panel");
+    return res.redirect(next);
   }
 
   res.render("supervisor-login", {
     pageTitle: "دخول المشرفين",
     activeNav: "supervisor",
     error: "رمز الدخول غير صحيح",
+    next,
   });
 }
 

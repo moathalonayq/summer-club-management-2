@@ -24,6 +24,7 @@
       <p>أدخل رمز الدخول للوصول إلى لوحة التحكم</p>
 
       <form method="POST" action="/supervisor/login">
+        <input type="hidden" name="next" value="<%= next %>">
         <div class="form-group">
           <label for="accessCode">رمز الدخول</label>
           <input type="password" name="accessCode" id="accessCode" class="form-input" placeholder="••••••••" autocomplete="off" required>
