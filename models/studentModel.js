@@ -82,21 +82,36 @@ async function getStudentByBarcode(barcode) {
   return getStudentById(rows[0].id);
 }
 
-/* -------- البحث عن طلاب بالاسم (بحث جزئي) -------- */
+/* -------- البحث عن طلاب بالاسم --------
+   يطابق أي كلمة من كلمات الاسم (الاسم الأول/الأب/العائلة...) تبدأ بنص البحث،
+   وليس فقط بداية الاسم الكامل. النتائج تُرتَّب بحيث يُقدَّم تطابق الاسم الأول
+   على تطابق اسم الأب ثم العائلة (حسب موضع الكلمة المطابقة داخل الاسم) */
 async function searchStudentsByName(query) {
   const normalized = normalizeArabic(query);
+  if (!normalized) return [];
+
   const [rows] = await pool.query(`
     SELECT
-      s.id, s.barcode, s.name,
+      s.id, s.barcode, s.name, s.name_normalized,
       g.name AS group_name,
       (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
-    WHERE s.name_normalized LIKE ? OR s.name LIKE ?
-    ORDER BY s.name ASC
-    LIMIT 30
-  `, [`${normalized}%`, `${query}%`]);
-  return rows;
+    WHERE s.name_normalized LIKE ?
+  `, [`%${normalized}%`]);
+
+  const matched = rows
+    .map((s) => {
+      const words = s.name_normalized.split(/\s+/);
+      const wordIndex = words.findIndex((w) => w.startsWith(normalized));
+      return { ...s, wordIndex };
+    })
+    .filter((s) => s.wordIndex !== -1)
+    .sort((a, b) => a.wordIndex - b.wordIndex || a.name.localeCompare(b.name, "ar"))
+    .slice(0, 30)
+    .map(({ name_normalized, wordIndex, ...rest }) => rest);
+
+  return matched;
 }
 
 /* -------- أعلى 10 طلاب على مستوى النادي (للصفحة الرئيسية) -------- */

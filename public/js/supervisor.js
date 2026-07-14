@@ -125,7 +125,16 @@ function setupStudentSearchSelect(inputId, resultsId, hiddenId, students, onSele
       return;
     }
 
-    const matches = students.filter((s) => s.name.toLocaleLowerCase("ar").includes(query));
+    // مطابقة أي كلمة من الاسم تبدأ بنص البحث (وليس فقط بداية الاسم الكامل)
+    // مع تقديم تطابق الاسم الأول على الأب ثم العائلة في الترتيب
+    const matches = students
+      .map((s) => {
+        const words = s.name.toLocaleLowerCase("ar").split(/\s+/);
+        const wordIndex = words.findIndex((w) => w.startsWith(query));
+        return { ...s, wordIndex };
+      })
+      .filter((s) => s.wordIndex !== -1)
+      .sort((a, b) => a.wordIndex - b.wordIndex || a.name.localeCompare(b.name, "ar"));
 
     if (!matches.length) {
       resultsBox.innerHTML = `<div class="search-empty">لا يوجد طالب بهذا الاسم</div>`;
