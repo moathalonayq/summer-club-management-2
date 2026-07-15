@@ -229,9 +229,16 @@ async function scanBarcodeAttendance(req, res, next) {
 /* -------- API: جلب إعدادات نقاط المتطلبات (قيمة واحدة لكل عنوان) -------- */
 async function getTaskConfig(req, res, next) {
   try {
-    const [rows] = await pool.query(
-      "SELECT title, MAX(points) AS points FROM knowledge_tasks GROUP BY title ORDER BY MIN(id)"
-    );
+    // نجلب فئة (مرحلة) كل متطلب عبر ربطه بطلاب مجموعتها، لعرضها مقسّمة
+    // (3 متطلبات للمرحلة الأولية و4 للمرحلة العليا) في لوحة الإدارة
+    const [rows] = await pool.query(`
+      SELECT kt.title, g.category, MAX(kt.points) AS points
+      FROM knowledge_tasks kt
+      JOIN students s ON s.id = kt.student_id
+      JOIN \`groups\` g ON g.id = s.group_id
+      GROUP BY kt.title, g.category
+      ORDER BY g.category ASC, MIN(kt.id)
+    `);
     res.json({ success: true, config: rows });
   } catch (err) { next(err); }
 }

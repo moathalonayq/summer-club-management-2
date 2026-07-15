@@ -306,14 +306,25 @@ async function loadTaskConfig() {
     const data = await res.json();
     if (!data.success) return;
 
-    configBox.innerHTML = data.config.map((t) => `
+    // نقسّم المتطلبات لقسمين حسب المرحلة (3 للأولية و4 للعليا) بدل عرضها كقائمة واحدة مسطّحة
+    const aulia = data.config.filter((t) => t.category === "الأولوية");
+    const aliya = data.config.filter((t) => t.category === "الفئة العليا");
+
+    const renderRow = (t) => `
       <div class="task-config-row">
         <span class="task-config-title">${t.title}</span>
         <input type="number" class="task-config-input" data-title="${t.title}"
           min="1" placeholder="0" value="${t.points > 0 ? t.points : ""}">
         <span class="task-points-label">نقطة</span>
       </div>
-    `).join("");
+    `;
+
+    configBox.innerHTML = `
+      <h5 class="task-config-group-title">المرحلة الأولية</h5>
+      ${aulia.map(renderRow).join("")}
+      <h5 class="task-config-group-title">المرحلة العليا</h5>
+      ${aliya.map(renderRow).join("")}
+    `;
   } catch (e) {
     configBox.innerHTML = `<p class="form-msg error">تعذر تحميل الإعدادات</p>`;
   }

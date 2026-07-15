@@ -1392,6 +1392,13 @@ input, select { font-family: inherit; }
   text-align: center;
 }
 .task-config-input:focus { border-color: var(--teal); outline: none; }
+.task-config-group-title {
+  margin: 14px 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.task-config-group-title:first-child { margin-top: 0; }
 .task-done-points {
   font-size: 12px;
   font-weight: 700;

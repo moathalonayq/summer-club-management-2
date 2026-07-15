@@ -39,12 +39,20 @@ const SAMPLE_NAMES = [
   "كريم نواف العتيبي", "عبدالرحمن ياسر الدوسري", "تميم بشير العنزي",
 ];
 
-const KNOWLEDGE_TASKS_TEMPLATE = [
-  "الواجب الاول",
-  "الواجب الثاني",
-  "الواجب الثالث",
-  "الواجب الرابع",
-];
+// متطلبات مختلفة حسب المرحلة: 3 للمرحلة الأولية (الدنيا) و4 للمرحلة العليا
+const KNOWLEDGE_TASKS_BY_CATEGORY = {
+  "الأولوية": [
+    "قول كلمة طيبة بالمنزل",
+    "تسميع سورة الفاتحة غيباً",
+    "القيام بعمل تعاوني بالمنزل",
+  ],
+  "الفئة العليا": [
+    "ما هو الذكاء الاصطناعي",
+    "نجرب الأدوات",
+    "ابدع وفكر بنقد",
+    "مشروع ومهاراتي",
+  ],
+};
 
 function generateBarcodeId(index) {
   const year = new Date().getFullYear();
@@ -99,6 +107,7 @@ async function run() {
       const name = SAMPLE_NAMES[idx];
       const groupName = GROUP_NAMES[idx % GROUP_NAMES.length];
       const groupId = groupIdByName[groupName];
+      const groupCategory = GROUPS_WITH_CATEGORY.find((g) => g.name === groupName).category;
       const barcode = generateBarcodeId(barcodeCounter++);
 
       const knowledgePoints = Math.floor(Math.random() * 60) + 10;
@@ -115,7 +124,7 @@ async function run() {
       const studentId = studentResult.insertId;
 
       // متطلبات البرنامج المعرفي — تبدأ كلها "غير مُنجزة" حتى يقيّمها المشرف فعلياً
-      for (const taskTitle of KNOWLEDGE_TASKS_TEMPLATE) {
+      for (const taskTitle of KNOWLEDGE_TASKS_BY_CATEGORY[groupCategory]) {
         await connection.query(
           "INSERT INTO knowledge_tasks (student_id, title, done) VALUES (?, ?, FALSE)",
           [studentId, taskTitle]
