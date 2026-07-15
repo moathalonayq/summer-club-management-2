@@ -75,6 +75,37 @@ async function getScoresVisible() {
   return !rows.length || rows[0].value === 'true';
 }
 
+// لون بطاقة التحضير حسب الأسرة: أحمر (البناء/الفلاح)، أزرق (الإخاء/الصروح)، بنفسجي (العطاء/الطموح)
+const CARD_COLOR_BY_FAMILY = {
+  "مجموعة البناء": "red",
+  "مجموعة الفلاح": "red",
+  "مجموعة الإخاء": "blue",
+  "مجموعة الصروح": "blue",
+  "مجموعة العطاء": "purple",
+  "مجموعة الطموح": "purple",
+};
+
+/* -------- صفحة بطاقات التحضير القابلة للطباعة (بطاقة لكل طالب) -------- */
+async function showAttendanceCards(req, res, next) {
+  try {
+    const students = await studentModel.getAllStudents();
+    const cards = students.map((s) => ({
+      name: s.name,
+      barcode: s.barcode,
+      groupName: s.group_name,
+      color: CARD_COLOR_BY_FAMILY[s.group_name] || "red",
+    }));
+
+    res.render("attendance-cards", {
+      pageTitle: "بطاقات التحضير",
+      activeNav: "supervisor",
+      cards,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 /* -------- لوحة التحكم الرئيسية للمشرف -------- */
 async function showPanel(req, res, next) {
   try {
@@ -309,6 +340,7 @@ module.exports = {
   handleLogin,
   handleLogout,
   showPanel,
+  showAttendanceCards,
   addPoints,
   markAttendanceManual,
   scanBarcodeAttendance,

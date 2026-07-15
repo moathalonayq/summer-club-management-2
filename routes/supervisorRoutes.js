@@ -11,6 +11,7 @@ router.get("/supervisor/login", supervisorController.showLoginPage);
 router.post("/supervisor/login", supervisorController.handleLogin);
 router.post("/supervisor/logout", supervisorController.handleLogout);
 router.get("/supervisor/panel", requireSupervisorPage, supervisorController.showPanel);
+router.get("/supervisor/attendance-cards", requireSupervisorPage, supervisorController.showAttendanceCards);
 
 /* -------- API (محمية بجلسة المشرف) -------- */
 router.post("/api/supervisor/points", requireSupervisorApi, supervisorController.addPoints);
