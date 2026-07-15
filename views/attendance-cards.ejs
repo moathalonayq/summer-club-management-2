@@ -7,7 +7,12 @@
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color-adjust: exact;
+    }
     body {
       margin: 0;
       font-family: "Tajawal", "Segoe UI", Tahoma, sans-serif;
@@ -102,6 +107,11 @@
       margin-top: 4px;
     }
 
+    /* حجم الصفحة عند الطباعة يطابق نسبة البطاقة (300×510) تماماً حتى لا تتمدد أو تنكمش */
+    @page {
+      size: 3.125in 5.3125in;
+      margin: 0;
+    }
     @media print {
       .toolbar { display: none; }
       body { background: #fff; }
@@ -110,8 +120,8 @@
         box-shadow: none;
         border-radius: 0;
         page-break-after: always;
-        width: 100vw;
-        height: 100vh;
+        width: 3.125in;
+        height: 5.3125in;
         justify-content: center;
       }
     }
@@ -120,7 +130,7 @@
 <body>
 
   <div class="toolbar">
-    <span>بطاقات التحضير — <%= cards.length %> طالباً</span>
+    <span>بطاقات التحضير — <%= cards.length %> طالباً<br><small>عند فتح نافذة الطباعة، تأكد من تفعيل خيار "طباعة الخلفيات/الألوان" (Background graphics) حتى تظهر الألوان</small></span>
     <button onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
   </div>
 
