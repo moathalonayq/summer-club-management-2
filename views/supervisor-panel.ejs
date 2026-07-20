@@ -3,9 +3,12 @@
   <section class="app-section active">
     <div class="supervisor-panel-header">
       <h3 class="panel-welcome">مرحباً بك، <%= role === 'admin' ? 'أيها المدير' : 'أيها المشرف' %></h3>
-      <form method="POST" action="/supervisor/logout">
-        <button type="submit" class="btn btn-outline btn-small">تسجيل الخروج</button>
-      </form>
+      <div style="display:flex; gap:10px;">
+        <a href="/supervisor/attendance-list" class="btn btn-gold btn-small">📋 قائمة الحضور حسب المجموعات</a>
+        <form method="POST" action="/supervisor/logout">
+          <button type="submit" class="btn btn-outline btn-small">تسجيل الخروج</button>
+        </form>
+      </div>
     </div>
 
     <script type="application/json" id="studentsDataJson"><%- JSON.stringify(students.map(s => ({ id: s.id, name: s.name, group: s.group_name }))) %></script>

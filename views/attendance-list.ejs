@@ -1,0 +1,155 @@
+<%- include('partials/header') %>
+
+  <section class="app-section active">
+    <div class="supervisor-panel-header">
+      <h3 class="panel-welcome">قائمة الحضور حسب المجموعات</h3>
+      <a href="/supervisor/panel" class="btn btn-outline btn-small">رجوع للوحة المشرفين</a>
+    </div>
+    <p class="section-desc">اختر الجلسة، ثم افتح مجموعتك وسجّل حضور كل طالب مباشرة بضغطة واحدة</p>
+
+    <div class="panel-box" style="margin-bottom:18px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label for="sessionSelect">الجلسة</label>
+        <select id="sessionSelect" class="form-select">
+          <% sessions.forEach(sess => { %>
+            <option value="<%= sess.id %>" <%= sess.id === currentSessionId ? 'selected' : '' %>>
+              الأسبوع <%= sess.week_number %> — <%= sess.day_name %> (<%= sess.session_date %>)
+            </option>
+          <% }) %>
+        </select>
+      </div>
+    </div>
+
+    <div id="groupsContainer">
+      <% groupedStudents.forEach((g, gi) => { %>
+        <div class="panel-box attendance-group-box">
+          <h4 class="attendance-group-title" data-toggle="group-<%= gi %>">
+            <%= g.groupName %>
+            <span class="attendance-group-count"><%= g.members.length %> طالب</span>
+            <span class="attendance-group-arrow">▾</span>
+          </h4>
+          <div class="attendance-group-body" id="group-<%= gi %>">
+            <% g.members.forEach(m => { %>
+              <div class="attendance-row" data-student-id="<%= m.id %>" data-attendance='<%- JSON.stringify(m.attendance) %>'>
+                <span class="attendance-row-name"><%= m.name %></span>
+                <div class="attendance-row-actions">
+                  <button type="button" class="att-btn att-present" data-status="حاضر">حاضر</button>
+                  <button type="button" class="att-btn att-late" data-status="متأخر">متأخر</button>
+                  <button type="button" class="att-btn att-absent" data-status="غايب">غايب</button>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+
+<%- include('partials/footer') %>
+
+<style>
+  .attendance-group-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin: 0;
+    padding: 4px 0;
+  }
+  .attendance-group-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: var(--cream);
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+  .attendance-group-arrow { margin-right: auto; transition: transform 0.2s; }
+  .attendance-group-title.collapsed .attendance-group-arrow { transform: rotate(-90deg); }
+  .attendance-group-body { margin-top: 12px; }
+  .attendance-group-body.hidden { display: none; }
+  .attendance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--cream-dark);
+    flex-wrap: wrap;
+  }
+  .attendance-row:last-child { border-bottom: none; }
+  .attendance-row-name { font-size: 14px; font-weight: 600; }
+  .attendance-row-actions { display: flex; gap: 6px; }
+  .att-btn {
+    border: 1.5px solid var(--cream-dark);
+    background: #fff;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .att-btn.att-present.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .att-btn.att-late.active { background: #d97706; border-color: #d97706; color: #fff; }
+  .att-btn.att-absent.active { background: #dc2626; border-color: #dc2626; color: #fff; }
+</style>
+
+<script>
+  document.querySelectorAll(".attendance-group-title").forEach((title) => {
+    title.addEventListener("click", () => {
+      const body = document.getElementById(title.dataset.toggle);
+      body.classList.toggle("hidden");
+      title.classList.toggle("collapsed");
+    });
+  });
+
+  const sessionSelect = document.getElementById("sessionSelect");
+
+  function refreshButtonStates() {
+    const sessionId = sessionSelect.value;
+    document.querySelectorAll(".attendance-row").forEach((row) => {
+      const attendance = JSON.parse(row.dataset.attendance || "{}");
+      const status = attendance[sessionId] || null;
+      row.querySelectorAll(".att-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.status === status);
+      });
+    });
+  }
+
+  sessionSelect.addEventListener("change", refreshButtonStates);
+  refreshButtonStates();
+
+  document.querySelectorAll(".attendance-row").forEach((row) => {
+    row.querySelectorAll(".att-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const studentId = row.dataset.studentId;
+        const sessionId = sessionSelect.value;
+        const status = btn.dataset.status;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch("/api/supervisor/attendance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ studentId, sessionId, status }),
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error();
+
+          const attendance = JSON.parse(row.dataset.attendance || "{}");
+          attendance[sessionId] = status;
+          row.dataset.attendance = JSON.stringify(attendance);
+
+          row.querySelectorAll(".att-btn").forEach((b) => {
+            b.classList.toggle("active", b.dataset.status === status);
+          });
+        } catch (e) {
+          alert("حدث خطأ، حاول مرة أخرى");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  });
+</script>

@@ -139,6 +139,49 @@ async function showPanel(req, res, next) {
   }
 }
 
+/* -------- صفحة قائمة الحضور مقسّمة حسب المجموعات (تحضير سريع بالجملة) -------- */
+async function showAttendanceList(req, res, next) {
+  try {
+    await sessionModel.autoMarkAbsentForPastSessions();
+
+    const students = await studentModel.getAllStudents();
+    const sessions = await sessionModel.getAllSessions();
+    const currentSession = await sessionModel.getCurrentOrNextSession();
+
+    const [attRows] = await pool.query("SELECT student_id, session_id, status FROM attendance");
+    const attendanceMap = {};
+    attRows.forEach((r) => {
+      if (!attendanceMap[r.student_id]) attendanceMap[r.student_id] = {};
+      attendanceMap[r.student_id][r.session_id] = r.status;
+    });
+
+    // تجميع الطلاب حسب اسم مجموعتهم (أسرتهم) بنفس ترتيب ظهورهم
+    const groupsMap = {};
+    students.forEach((s) => {
+      if (!groupsMap[s.group_name]) groupsMap[s.group_name] = [];
+      groupsMap[s.group_name].push({
+        id: s.id,
+        name: s.name,
+        attendance: attendanceMap[s.id] || {},
+      });
+    });
+    const groupedStudents = Object.entries(groupsMap).map(([groupName, members]) => ({
+      groupName,
+      members,
+    }));
+
+    res.render("attendance-list", {
+      pageTitle: "قائمة الحضور",
+      activeNav: "supervisor",
+      groupedStudents,
+      sessions,
+      currentSessionId: currentSession ? currentSession.id : null,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 /* -------- API: إضافة أو خصم نقاط لطالب -------- */
 async function addPoints(req, res, next) {
   try {
@@ -341,6 +384,7 @@ module.exports = {
   handleLogout,
   showPanel,
   showAttendanceCards,
+  showAttendanceList,
   addPoints,
   markAttendanceManual,
   scanBarcodeAttendance,
