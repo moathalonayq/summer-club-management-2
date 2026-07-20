@@ -34,6 +34,21 @@
       </div>
     </div>
 
+    <!-- =========================================================
+         السؤال اليومي
+         ========================================================= -->
+    <div class="daily-question-card">
+      <div class="daily-question-icon">❓</div>
+      <div>
+        <h3 class="daily-question-title">السؤال اليومي</h3>
+        <% if (dailyQuestion) { %>
+          <p class="daily-question-text"><%= dailyQuestion %></p>
+        <% } else { %>
+          <p class="daily-question-text daily-question-empty">لا يوجد سؤال يومي اليوم</p>
+        <% } %>
+      </div>
+    </div>
+
     <h2 class="section-title">نظرة عامة على النادي</h2>
     <p class="section-desc">إحصائية شاملة عن نادي القيروان وأداء الطلاب في جميع البرامج</p>
 

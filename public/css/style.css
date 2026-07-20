@@ -202,6 +202,44 @@ input, select { font-family: inherit; }
   max-width: 760px;
 }
 
+/* =========================================================
+   السؤال اليومي (الصفحة الرئيسية)
+   ========================================================= */
+.daily-question-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--yellow);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow-md);
+}
+.daily-question-icon {
+  font-size: 42px;
+  flex-shrink: 0;
+}
+.daily-question-title {
+  margin: 0 0 6px;
+  color: var(--navy-deep);
+  font-size: 18px;
+  font-weight: 900;
+}
+.daily-question-text {
+  margin: 0;
+  color: var(--navy-deep);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.daily-question-text.daily-question-empty {
+  opacity: 0.75;
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .daily-question-card { flex-direction: column; text-align: center; padding: 22px 18px; }
+}
+
 .club-quick-facts {
   display: flex;
   flex-wrap: wrap;
