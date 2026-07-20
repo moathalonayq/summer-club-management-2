@@ -11,6 +11,7 @@ const pool = require("../config/db");
 const studentModel = require("../models/studentModel");
 const groupModel = require("../models/groupModel");
 const sessionModel = require("../models/sessionModel");
+const archiveModel = require("../models/archiveModel");
 
 // الإدارة: تحكم كامل (كل ما كان متاحاً سابقاً بدون أي تعديل)
 // المشرفون: تحضير (باركود + يدوي) + إضافة نقاط مبادرة فقط مع سبب إلزامي
@@ -355,6 +356,46 @@ async function toggleScoresVisible(req, res, next) {
   }
 }
 
+/* -------- API: أرشفة نقاط الأسبوع الحالية ثم تصفير knowledge/sports/cultural (المبادرات لا تتأثر) -------- */
+async function archiveWeekPoints(req, res, next) {
+  try {
+    const weekNumber = Number(req.body.weekNumber);
+    if (!weekNumber || weekNumber <= 0) {
+      return res.status(400).json({ success: false, message: "أدخل رقم أسبوع صحيح" });
+    }
+
+    const count = await archiveModel.archiveAndResetPoints(weekNumber);
+
+    await pool.query(
+      "INSERT INTO activity_log (action) VALUES (?)",
+      [`أرشفة نقاط الأسبوع ${weekNumber} وتصفيرها لـ ${count} طالباً (بدون المبادرات)`]
+    );
+
+    res.json({ success: true, count });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/* -------- صفحة عرض أرشيف النقاط الأسبوعي -------- */
+async function showPointsArchive(req, res, next) {
+  try {
+    const weeks = await archiveModel.getArchivedWeekNumbers();
+    const selectedWeek = Number(req.query.week) || weeks[weeks.length - 1] || 1;
+    const rows = weeks.length ? await archiveModel.getArchiveByWeek(selectedWeek) : [];
+
+    res.render("points-archive", {
+      pageTitle: "أرشيف النقاط الأسبوعي",
+      activeNav: "supervisor",
+      weeks,
+      selectedWeek,
+      rows,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   showLoginPage,
   handleLogin,
@@ -368,4 +409,6 @@ module.exports = {
   getTaskConfig,
   saveTaskConfig,
   toggleScoresVisible,
+  archiveWeekPoints,
+  showPointsArchive,
 };

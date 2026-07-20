@@ -214,6 +214,20 @@
       </div>
       <p class="form-msg" id="scoresToggleMsg" style="margin:0;"></p>
     </div>
+
+    <!-- أرشفة نقاط الأسبوع الحالي ثم تصفيرها (المبادرات لا تتأثر) -->
+    <div class="scores-visibility-box">
+      <div class="scores-status-info">
+        <strong>🗄️ أرشفة نقاط الأسبوع وتصفيرها</strong>
+        <small class="scores-status-hint">يحفظ نقاط معرفي/رياضي/ترفيهي الحالية لكل الطلاب في أرشيف الأسبوع المحدد، ثم يصفّرها لبدء أسبوع جديد. المبادرات لا تتأثر إطلاقاً.</small>
+      </div>
+      <div class="scores-pin-area">
+        <input type="number" id="archiveWeekInput" class="form-input scores-pin-input" placeholder="رقم الأسبوع (مثال: 1)" min="1" style="width:150px;">
+        <button type="button" id="archiveWeekBtn" class="btn btn-gold">أرشفة وتصفير</button>
+        <a href="/supervisor/points-archive" class="btn btn-outline btn-small">عرض الأرشيف</a>
+      </div>
+      <p class="form-msg" id="archiveWeekMsg" style="margin:0;"></p>
+    </div>
     <% } %>
 
     <h4 class="table-section-title">جميع الطلاب وباركود كل طالب</h4>

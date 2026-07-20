@@ -7,6 +7,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS attendance;
 DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS weekly_points_archive;
 DROP TABLE IF EXISTS initiatives;
 DROP TABLE IF EXISTS knowledge_tasks;
 DROP TABLE IF EXISTS activity_log;
@@ -71,6 +72,25 @@ CREATE TABLE initiatives (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_initiatives_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   INDEX idx_initiatives_student (student_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =========================================================
+-- جدول أرشيف النقاط الأسبوعي — لقطة (snapshot) لنقاط كل طالب
+-- في نهاية أسبوع معين قبل تصفيرها للأسبوع التالي، للاستذكار لاحقاً
+-- (المبادرات لا تُصفَّر أبداً ولا تُؤرشف هنا لأنها تبقى كما هي)
+-- =========================================================
+CREATE TABLE weekly_points_archive (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  week_number INT NOT NULL,
+  knowledge_points INT NOT NULL DEFAULT 0,
+  sports_points INT NOT NULL DEFAULT 0,
+  cultural_points INT NOT NULL DEFAULT 0,
+  total_points INT NOT NULL DEFAULT 0,
+  archived_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_archive_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_student_week (student_id, week_number),
+  INDEX idx_archive_week (week_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================================

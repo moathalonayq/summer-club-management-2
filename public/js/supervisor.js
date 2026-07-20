@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupScanner();
   setupGlobalToggleScores();
   setupAttendanceListByFamily();
+  setupArchiveWeekBtn();
   autoStartScanIfRequested();
 });
 
@@ -194,6 +195,47 @@ function setupGlobalToggleScores() {
       if (e.key === "Enter") btn.click();
     });
   }
+}
+
+/* =========================================================
+   0.2) أرشفة نقاط الأسبوع الحالي ثم تصفيرها (المبادرات لا تتأثر)
+   ========================================================= */
+function setupArchiveWeekBtn() {
+  const btn = document.getElementById("archiveWeekBtn");
+  const weekInput = document.getElementById("archiveWeekInput");
+  const msg = document.getElementById("archiveWeekMsg");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const weekNumber = Number(weekInput.value);
+    if (!weekNumber || weekNumber <= 0) {
+      showMsg(msg, "أدخل رقم أسبوع صحيح", "error");
+      return;
+    }
+
+    const confirmed = confirm(
+      `سيتم حفظ نقاط جميع الطلاب الحالية (معرفي/رياضي/ترفيهي) في أرشيف الأسبوع ${weekNumber}، ثم تصفيرها للجميع لبدء أسبوع جديد.\n\nالمبادرات لن تتأثر إطلاقاً.\n\nهل تريد المتابعة؟`
+    );
+    if (!confirmed) return;
+
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/supervisor/archive-week", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "حدث خطأ");
+
+      showMsg(msg, `✅ تمت أرشفة وتصفير نقاط ${data.count} طالباً بنجاح`, "success");
+      setTimeout(() => location.reload(), 1200);
+    } catch (e) {
+      showMsg(msg, e.message || "حدث خطأ في الاتصال بالخادم", "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
 }
 
 /* =========================================================

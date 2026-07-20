@@ -1,0 +1,57 @@
+<%- include('partials/header') %>
+
+  <section class="app-section active">
+    <div class="supervisor-panel-header">
+      <h3 class="panel-welcome">أرشيف النقاط الأسبوعي</h3>
+      <a href="/supervisor/panel" class="btn btn-outline btn-small">رجوع للوحة المشرفين</a>
+    </div>
+    <p class="section-desc">نقاط الطلاب كما كانت في نهاية كل أسبوع، قبل تصفيرها للأسبوع التالي (بدون المبادرات)</p>
+
+    <% if (!weeks.length) { %>
+      <div class="panel-box">
+        <p class="empty-note">لا يوجد أي أسبوع مؤرشَف بعد.</p>
+      </div>
+    <% } else { %>
+      <div class="panel-box" style="margin-bottom:18px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="weekSelect">الأسبوع</label>
+          <select id="weekSelect" class="form-select" onchange="location.href='/supervisor/points-archive?week=' + this.value">
+            <% weeks.forEach(w => { %>
+              <option value="<%= w %>" <%= w === selectedWeek ? 'selected' : '' %>>الأسبوع <%= w %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الاسم</th>
+              <th>المجموعة</th>
+              <th>معرفي</th>
+              <th>رياضي</th>
+              <th>ترفيهي</th>
+              <th>الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% rows.forEach((r, i) => { %>
+              <tr>
+                <td><%= i + 1 %></td>
+                <td><%= r.name %></td>
+                <td><%= r.group_name %></td>
+                <td><%= r.knowledge_points %></td>
+                <td><%= r.sports_points %></td>
+                <td><%= r.cultural_points %></td>
+                <td><strong><%= r.total_points %></strong></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+<%- include('partials/footer') %>

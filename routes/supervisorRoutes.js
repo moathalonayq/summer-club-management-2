@@ -12,6 +12,7 @@ router.post("/supervisor/login", supervisorController.handleLogin);
 router.post("/supervisor/logout", supervisorController.handleLogout);
 router.get("/supervisor/panel", requireSupervisorPage, supervisorController.showPanel);
 router.get("/supervisor/attendance-cards", requireSupervisorPage, supervisorController.showAttendanceCards);
+router.get("/supervisor/points-archive", requireSupervisorPage, supervisorController.showPointsArchive);
 
 /* -------- API (محمية بجلسة المشرف) -------- */
 router.post("/api/supervisor/points", requireSupervisorApi, supervisorController.addPoints);
@@ -21,5 +22,6 @@ router.post("/api/supervisor/tasks", requireAdminApi, supervisorController.setKn
 router.get("/api/supervisor/task-config", requireAdminApi, supervisorController.getTaskConfig);
 router.post("/api/supervisor/task-config", requireAdminApi, supervisorController.saveTaskConfig);
 router.post("/api/supervisor/toggle-scores", requireAdminApi, supervisorController.toggleScoresVisible);
+router.post("/api/supervisor/archive-week", requireAdminApi, supervisorController.archiveWeekPoints);
 
 module.exports = router;
