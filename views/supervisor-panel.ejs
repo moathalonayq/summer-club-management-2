@@ -3,9 +3,12 @@
   <section class="app-section active">
     <div class="supervisor-panel-header">
       <h3 class="panel-welcome">مرحباً بك، <%= role === 'admin' ? 'أيها المدير' : 'أيها المشرف' %></h3>
-      <form method="POST" action="/supervisor/logout">
-        <button type="submit" class="btn btn-outline btn-small">تسجيل الخروج</button>
-      </form>
+      <div style="display:flex; gap:10px;">
+        <a href="/supervisor/points-archive" class="btn btn-gold btn-small">🗄️ أرشيف النقاط</a>
+        <form method="POST" action="/supervisor/logout">
+          <button type="submit" class="btn btn-outline btn-small">تسجيل الخروج</button>
+        </form>
+      </div>
     </div>
 
     <script type="application/json" id="studentsDataJson"><%- JSON.stringify(students.map(s => ({ id: s.id, name: s.name, group: s.group_name }))) %></script>
@@ -224,7 +227,6 @@
       <div class="scores-pin-area">
         <input type="number" id="archiveWeekInput" class="form-input scores-pin-input" placeholder="رقم الأسبوع (مثال: 1)" min="1" style="width:150px;">
         <button type="button" id="archiveWeekBtn" class="btn btn-gold">أرشفة وتصفير</button>
-        <a href="/supervisor/points-archive" class="btn btn-outline btn-small">عرض الأرشيف</a>
       </div>
       <p class="form-msg" id="archiveWeekMsg" style="margin:0;"></p>
     </div>
