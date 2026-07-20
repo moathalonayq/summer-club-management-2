@@ -115,6 +115,7 @@ async function showPanel(req, res, next) {
     const groups = await groupModel.getAllGroupsSimple();
     const sessions = await sessionModel.getAllSessions();
     const scoresVisible = await getScoresVisible();
+    const currentSession = await sessionModel.getCurrentOrNextSession();
 
     // جلب جميع سجلات الحضور ثم بناء map: { studentId: { sessionId: status } }
     const [attRows] = await pool.query("SELECT student_id, session_id, status FROM attendance");
@@ -124,38 +125,7 @@ async function showPanel(req, res, next) {
       attendanceMap[r.student_id][r.session_id] = r.status;
     });
 
-    res.render("supervisor-panel", {
-      pageTitle: "لوحة المشرفين",
-      activeNav: "supervisor",
-      role: req.session.role || "admin",
-      students,
-      groups,
-      sessions,
-      attendanceMap,
-      scoresVisible,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-/* -------- صفحة قائمة الحضور مقسّمة حسب المجموعات (تحضير سريع بالجملة) -------- */
-async function showAttendanceList(req, res, next) {
-  try {
-    await sessionModel.autoMarkAbsentForPastSessions();
-
-    const students = await studentModel.getAllStudents();
-    const sessions = await sessionModel.getAllSessions();
-    const currentSession = await sessionModel.getCurrentOrNextSession();
-
-    const [attRows] = await pool.query("SELECT student_id, session_id, status FROM attendance");
-    const attendanceMap = {};
-    attRows.forEach((r) => {
-      if (!attendanceMap[r.student_id]) attendanceMap[r.student_id] = {};
-      attendanceMap[r.student_id][r.session_id] = r.status;
-    });
-
-    // تجميع الطلاب حسب اسم مجموعتهم (أسرتهم) وفئتها (أولية/عليا)
+    // تجميع الطلاب حسب اسم مجموعتهم (أسرتهم) وفئتها (أولية/عليا) لقائمة الحضور بالجملة
     const groupsMap = {};
     students.forEach((s) => {
       if (!groupsMap[s.group_name]) {
@@ -171,12 +141,17 @@ async function showAttendanceList(req, res, next) {
     const auliaGroups = groupedStudents.filter((g) => g.category === "الأولوية");
     const aliyaGroups = groupedStudents.filter((g) => g.category === "الفئة العليا");
 
-    res.render("attendance-list", {
-      pageTitle: "قائمة الحضور",
+    res.render("supervisor-panel", {
+      pageTitle: "لوحة المشرفين",
       activeNav: "supervisor",
+      role: req.session.role || "admin",
+      students,
+      groups,
+      sessions,
+      attendanceMap,
+      scoresVisible,
       auliaGroups,
       aliyaGroups,
-      sessions,
       currentSessionId: currentSession ? currentSession.id : null,
     });
   } catch (err) {
@@ -386,7 +361,6 @@ module.exports = {
   handleLogout,
   showPanel,
   showAttendanceCards,
-  showAttendanceList,
   addPoints,
   markAttendanceManual,
   scanBarcodeAttendance,

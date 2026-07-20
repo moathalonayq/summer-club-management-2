@@ -19,8 +19,99 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBarcodeModal();
   setupScanner();
   setupGlobalToggleScores();
+  setupAttendanceListByFamily();
   autoStartScanIfRequested();
 });
+
+/* =========================================================
+   0.3) قائمة الحضور بالجملة: أزرار الأسر حسب الفئة
+   ========================================================= */
+function setupAttendanceListByFamily() {
+  const dataEl = document.getElementById("attendanceGroupsDataJson");
+  const sessionSelect = document.getElementById("attListSessionSelect");
+  if (!dataEl || !sessionSelect) return;
+
+  const { aliya, aulia } = JSON.parse(dataEl.textContent);
+  const allGroups = {};
+  aliya.forEach((g, i) => { allGroups["aliya-" + i] = g; });
+  aulia.forEach((g, i) => { allGroups["aulia-" + i] = g; });
+
+  window.showFamilyAttendance = function (key) {
+    const group = allGroups[key];
+
+    document.getElementById("familyPickerLevel").classList.add("hidden");
+    document.getElementById("familyDetailLevel").classList.remove("hidden");
+    document.getElementById("familyDetailTitle").textContent = group.groupName + " (" + group.members.length + " طالب)";
+
+    const body = document.getElementById("familyDetailBody");
+    body.innerHTML = group.members.map((m) => `
+      <div class="attendance-row" data-student-id="${m.id}" data-attendance='${JSON.stringify(m.attendance)}'>
+        <span class="attendance-row-name">${m.name}</span>
+        <div class="attendance-row-actions">
+          <button type="button" class="att-btn att-present" data-status="حاضر">حاضر</button>
+          <button type="button" class="att-btn att-late" data-status="متأخر">متأخر</button>
+          <button type="button" class="att-btn att-absent" data-status="غايب">غايب</button>
+        </div>
+      </div>
+    `).join("");
+
+    attachAttendanceRowHandlers(sessionSelect);
+    refreshAttendanceButtonStates(sessionSelect);
+  };
+
+  window.backToFamilyPicker = function () {
+    document.getElementById("familyDetailLevel").classList.add("hidden");
+    document.getElementById("familyPickerLevel").classList.remove("hidden");
+  };
+
+  sessionSelect.addEventListener("change", () => refreshAttendanceButtonStates(sessionSelect));
+}
+
+function refreshAttendanceButtonStates(sessionSelect) {
+  const sessionId = sessionSelect.value;
+  document.querySelectorAll("#familyDetailBody .attendance-row").forEach((row) => {
+    const attendance = JSON.parse(row.dataset.attendance || "{}");
+    const status = attendance[sessionId] || null;
+    row.querySelectorAll(".att-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.status === status);
+    });
+  });
+}
+
+function attachAttendanceRowHandlers(sessionSelect) {
+  document.querySelectorAll("#familyDetailBody .attendance-row").forEach((row) => {
+    row.querySelectorAll(".att-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const studentId = row.dataset.studentId;
+        const sessionId = sessionSelect.value;
+        const status = btn.dataset.status;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch("/api/supervisor/attendance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ studentId, sessionId, status }),
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error();
+
+          const attendance = JSON.parse(row.dataset.attendance || "{}");
+          attendance[sessionId] = status;
+          row.dataset.attendance = JSON.stringify(attendance);
+
+          row.querySelectorAll(".att-btn").forEach((b) => {
+            b.classList.toggle("active", b.dataset.status === status);
+          });
+        } catch (e) {
+          alert("حدث خطأ، حاول مرة أخرى");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  });
+}
 
 /* =========================================================
    0.5) فتح الكاميرا تلقائياً عند الوصول عبر رابط ?scan=1

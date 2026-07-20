@@ -1832,3 +1832,60 @@ input, select { font-family: inherit; }
   transition: 0.15s;
 }
 .recent-clear:hover { color: rgba(255,255,255,0.75); }
+
+/* =========================================================
+   قائمة الحضور بالجملة (لوحة المشرفين): أزرار الأسر + صفوف التحضير
+   ========================================================= */
+.attendance-category-title {
+  margin: 14px 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.attendance-category-title:first-child { margin-top: 0; }
+
+.family-btn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.family-btn {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 16px 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.family-btn:hover { opacity: 0.9; }
+@media (max-width: 640px) {
+  .family-btn { padding: 12px 4px; font-size: 12px; }
+}
+
+.attendance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--cream-dark);
+  flex-wrap: wrap;
+}
+.attendance-row:last-child { border-bottom: none; }
+.attendance-row-name { font-size: 14px; font-weight: 600; }
+.attendance-row-actions { display: flex; gap: 6px; }
+.att-btn {
+  border: 1.5px solid var(--cream-dark);
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.att-btn.att-present.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+.att-btn.att-late.active { background: #d97706; border-color: #d97706; color: #fff; }
+.att-btn.att-absent.active { background: #dc2626; border-color: #dc2626; color: #fff; }
