@@ -41,6 +41,7 @@ CREATE TABLE students (
   knowledge_points INT NOT NULL DEFAULT 0,
   sports_points INT NOT NULL DEFAULT 0,
   cultural_points INT NOT NULL DEFAULT 0,
+  attendance_points INT NOT NULL DEFAULT 0,
   guardian_phone VARCHAR(20),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_students_group FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,

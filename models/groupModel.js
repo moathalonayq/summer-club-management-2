@@ -11,7 +11,7 @@ async function getRankedGroups() {
     SELECT
       g.id, g.name, g.category,
       COUNT(s.id) AS member_count,
-      COALESCE(SUM(s.knowledge_points + s.sports_points + s.cultural_points), 0) AS total_points
+      COALESCE(SUM(s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points), 0) AS total_points
     FROM \`groups\` g
     LEFT JOIN students s ON s.group_id = g.id
     GROUP BY g.id, g.name, g.category
@@ -47,12 +47,12 @@ async function getGroupMembers(groupId) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name,
-      s.knowledge_points, s.sports_points, s.cultural_points,
+      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points,
       COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0) AS initiatives_points,
-      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
     FROM students s
     WHERE s.group_id = ?
-    ORDER BY (s.knowledge_points + s.sports_points + s.cultural_points
+    ORDER BY (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points
       + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
     ) DESC
   `, [groupId]);

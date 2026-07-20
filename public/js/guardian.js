@@ -334,6 +334,10 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="pd-label">🎭 البرنامج الترفيهي</span>
               <span class="pd-value cultural-color">${student.cultural_points}</span>
             </div>
+            <div class="points-detail-row">
+              <span class="pd-label">🎟️ نقاط الحضور</span>
+              <span class="pd-value">${student.attendance_points}</span>
+            </div>
           </div>
         </div>` : ''}
 

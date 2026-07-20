@@ -579,6 +579,8 @@ function updateStudentRowInTable(student) {
   row.querySelector(".cell-knowledge").textContent = student.knowledge_points;
   row.querySelector(".cell-sports").textContent = student.sports_points;
   row.querySelector(".cell-cultural").textContent = student.cultural_points;
+  const attCell = row.querySelector(".cell-attendance-points");
+  if (attCell) attCell.textContent = student.attendance_points;
   row.querySelector(".cell-total").innerHTML = `<strong>${student.total_points}</strong>`;
 }
 

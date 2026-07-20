@@ -12,10 +12,10 @@ async function getAllStudents() {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.barcode, s.name, s.guardian_phone,
-      s.knowledge_points, s.sports_points, s.cultural_points,
+      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points,
       g.id AS group_id, g.name AS group_name, g.category AS group_category,
       COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0) AS initiatives_points,
-      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points,
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points,
       COALESCE((SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.status IN ('حاضر','متأخر')), 0) AS attendance_count
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
@@ -29,7 +29,7 @@ async function getStudentById(id) {
   const [studentRows] = await pool.query(`
     SELECT
       s.id, s.barcode, s.name, s.guardian_phone,
-      s.knowledge_points, s.sports_points, s.cultural_points,
+      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points,
       g.id AS group_id, g.name AS group_name, g.category AS group_category
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
@@ -67,7 +67,7 @@ async function getStudentById(id) {
   student.initiatives_points = initiativesRows.reduce((sum, i) => sum + i.points, 0);
   // إجمالي الملف الشخصي فقط يضم نقاط المبادرات (بخلاف إجمالي جدول المجموعة الذي يستثنيها)
   student.total_points = student.knowledge_points + student.sports_points
-    + student.cultural_points + student.initiatives_points;
+    + student.cultural_points + student.attendance_points + student.initiatives_points;
 
   return student;
 }
@@ -94,7 +94,7 @@ async function searchStudentsByName(query) {
     SELECT
       s.id, s.barcode, s.name, s.name_normalized,
       g.name AS group_name,
-      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     WHERE s.name_normalized LIKE ?
@@ -119,7 +119,7 @@ async function getTopStudents(limit = 10) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name, g.name AS group_name,
-      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     ORDER BY total_points DESC
@@ -133,7 +133,7 @@ async function getTopStudentsByCategory(limit = 5) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name, g.name AS group_name, g.category,
-      (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     ORDER BY g.category ASC, total_points DESC
@@ -152,7 +152,7 @@ async function getStudentRankOverall(studentId, category) {
   // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
     SELECT s.id,
-      (s.knowledge_points + s.sports_points + s.cultural_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points
         + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
       ) AS total_points
     FROM students s
@@ -169,7 +169,7 @@ async function getStudentRankInGroup(studentId, groupId) {
   // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
     SELECT id, name,
-      (knowledge_points + sports_points + cultural_points
+      (knowledge_points + sports_points + cultural_points + attendance_points
         + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
       ) AS total_points
     FROM students
@@ -208,14 +208,43 @@ async function addPointsToStudent(studentId, program, amount, reason) {
   );
 }
 
-/* -------- تسجيل حضور لجلسة محددة (يدوي من المشرف أو تلقائي عبر الباركود) -------- */
+/* -------- تسجيل حضور لجلسة محددة (يدوي من المشرف أو تلقائي عبر الباركود) --------
+   اعتباراً من الأسبوع الثاني: كل حضور "حاضر" أو "متأخر" يمنح 15 نقطة حضور
+   (الأسبوع الأول مستثنى لأنه مؤرشَف ومصفَّر بالفعل). المنطق هنا يقارن
+   الحالة السابقة بالجديدة حتى لا تُضاف/تُخصم النقاط أكثر من مرة عند
+   إعادة تسجيل نفس الحالة أو التبديل بين "حاضر" و"متأخر". */
 async function markAttendance(studentId, status, sessionId) {
+  const ATTENDANCE_POINTS = 15;
+  const PRESENT_STATUSES = ["حاضر", "متأخر"];
+
+  const [sessRows] = await pool.query("SELECT week_number FROM sessions WHERE id = ?", [sessionId]);
+  const weekNumber = sessRows[0] ? sessRows[0].week_number : null;
+  const eligibleWeek = weekNumber === 2 || weekNumber === 3;
+
+  const [prevRows] = await pool.query(
+    "SELECT status FROM attendance WHERE student_id = ? AND session_id = ?",
+    [studentId, sessionId]
+  );
+  const prevStatus = prevRows[0] ? prevRows[0].status : null;
+
   await pool.query(
     `INSERT INTO attendance (student_id, session_id, status)
      VALUES (?, ?, ?)
      ON DUPLICATE KEY UPDATE status = VALUES(status)`,
     [studentId, sessionId, status]
   );
+
+  if (eligibleWeek) {
+    const wasPresent = PRESENT_STATUSES.includes(prevStatus);
+    const isPresent = PRESENT_STATUSES.includes(status);
+    if (wasPresent !== isPresent) {
+      const delta = isPresent ? ATTENDANCE_POINTS : -ATTENDANCE_POINTS;
+      await pool.query(
+        "UPDATE students SET attendance_points = GREATEST(attendance_points + ?, 0) WHERE id = ?",
+        [delta, studentId]
+      );
+    }
+  }
 
   const [rows] = await pool.query(
     `SELECT att.id, att.status, sess.id AS session_id, sess.session_date, sess.day_name, sess.week_number
