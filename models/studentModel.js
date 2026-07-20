@@ -13,7 +13,7 @@ async function getAllStudents() {
     SELECT
       s.id, s.barcode, s.name, s.guardian_phone,
       s.knowledge_points, s.sports_points, s.cultural_points,
-      g.id AS group_id, g.name AS group_name,
+      g.id AS group_id, g.name AS group_name, g.category AS group_category,
       COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0) AS initiatives_points,
       (s.knowledge_points + s.sports_points + s.cultural_points) AS total_points,
       COALESCE((SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.status IN ('حاضر','متأخر')), 0) AS attendance_count

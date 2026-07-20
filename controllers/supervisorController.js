@@ -155,25 +155,27 @@ async function showAttendanceList(req, res, next) {
       attendanceMap[r.student_id][r.session_id] = r.status;
     });
 
-    // تجميع الطلاب حسب اسم مجموعتهم (أسرتهم) بنفس ترتيب ظهورهم
+    // تجميع الطلاب حسب اسم مجموعتهم (أسرتهم) وفئتها (أولية/عليا)
     const groupsMap = {};
     students.forEach((s) => {
-      if (!groupsMap[s.group_name]) groupsMap[s.group_name] = [];
-      groupsMap[s.group_name].push({
+      if (!groupsMap[s.group_name]) {
+        groupsMap[s.group_name] = { groupName: s.group_name, category: s.group_category, members: [] };
+      }
+      groupsMap[s.group_name].members.push({
         id: s.id,
         name: s.name,
         attendance: attendanceMap[s.id] || {},
       });
     });
-    const groupedStudents = Object.entries(groupsMap).map(([groupName, members]) => ({
-      groupName,
-      members,
-    }));
+    const groupedStudents = Object.values(groupsMap);
+    const auliaGroups = groupedStudents.filter((g) => g.category === "الأولوية");
+    const aliyaGroups = groupedStudents.filter((g) => g.category === "الفئة العليا");
 
     res.render("attendance-list", {
       pageTitle: "قائمة الحضور",
       activeNav: "supervisor",
-      groupedStudents,
+      auliaGroups,
+      aliyaGroups,
       sessions,
       currentSessionId: currentSession ? currentSession.id : null,
     });
