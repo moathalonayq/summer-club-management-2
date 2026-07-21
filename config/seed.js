@@ -140,7 +140,7 @@ async function run() {
       // التكاليف المنزلية — نفس القائمة لكل الطلاب بلا استثناء
       for (const { title, description } of HOME_TASKS_TEMPLATE) {
         await connection.query(
-          "INSERT INTO home_tasks (student_id, title, description, done) VALUES (?, ?, ?, FALSE)",
+          "INSERT INTO home_tasks (student_id, title, description, done, points) VALUES (?, ?, ?, FALSE, 25)",
           [studentId, title, description]
         );
       }
