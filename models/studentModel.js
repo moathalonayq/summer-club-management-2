@@ -12,10 +12,10 @@ async function getAllStudents() {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.barcode, s.name, s.guardian_phone,
-      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points,
+      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points, s.home_tasks_points,
       g.id AS group_id, g.name AS group_name, g.category AS group_category,
       COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0) AS initiatives_points,
-      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points,
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points) AS total_points,
       COALESCE((SELECT COUNT(*) FROM attendance a WHERE a.student_id = s.id AND a.status IN ('حاضر','متأخر')), 0) AS attendance_count
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
@@ -29,7 +29,7 @@ async function getStudentById(id) {
   const [studentRows] = await pool.query(`
     SELECT
       s.id, s.barcode, s.name, s.guardian_phone,
-      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points,
+      s.knowledge_points, s.sports_points, s.cultural_points, s.attendance_points, s.home_tasks_points,
       g.id AS group_id, g.name AS group_name, g.category AS group_category
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
@@ -41,6 +41,10 @@ async function getStudentById(id) {
 
   const [tasksRows] = await pool.query(
     "SELECT id, title, done FROM knowledge_tasks WHERE student_id = ? ORDER BY id",
+    [id]
+  );
+  const [homeTasksRows] = await pool.query(
+    "SELECT id, title, description, done FROM home_tasks WHERE student_id = ? ORDER BY id",
     [id]
   );
   const [initiativesRows] = await pool.query(
@@ -62,12 +66,14 @@ async function getStudentById(id) {
 
   // MySQL يرجع done كـ 0/1 (TINYINT)، نحوّلها لـ boolean صريح
   student.knowledge_tasks = tasksRows.map((t) => ({ ...t, done: !!t.done }));
+  student.home_tasks = homeTasksRows.map((t) => ({ ...t, done: !!t.done }));
   student.initiatives = initiativesRows;
   student.attendance = attendanceRows;
   student.initiatives_points = initiativesRows.reduce((sum, i) => sum + i.points, 0);
   // إجمالي الملف الشخصي فقط يضم نقاط المبادرات (بخلاف إجمالي جدول المجموعة الذي يستثنيها)
   student.total_points = student.knowledge_points + student.sports_points
-    + student.cultural_points + student.attendance_points + student.initiatives_points;
+    + student.cultural_points + student.attendance_points + student.home_tasks_points
+    + student.initiatives_points;
 
   return student;
 }
@@ -94,7 +100,7 @@ async function searchStudentsByName(query) {
     SELECT
       s.id, s.barcode, s.name, s.name_normalized,
       g.name AS group_name,
-      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     WHERE s.name_normalized LIKE ?
@@ -119,7 +125,7 @@ async function getTopStudents(limit = 10) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name, g.name AS group_name,
-      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     ORDER BY total_points DESC
@@ -133,7 +139,7 @@ async function getTopStudentsByCategory(limit = 5) {
   const [rows] = await pool.query(`
     SELECT
       s.id, s.name, g.name AS group_name, g.category,
-      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points) AS total_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points) AS total_points
     FROM students s
     JOIN \`groups\` g ON g.id = s.group_id
     ORDER BY g.category ASC, total_points DESC
@@ -152,7 +158,7 @@ async function getStudentRankOverall(studentId, category) {
   // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
     SELECT s.id,
-      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points
+      (s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points
         + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = s.id), 0)
       ) AS total_points
     FROM students s
@@ -169,7 +175,7 @@ async function getStudentRankInGroup(studentId, groupId) {
   // الترتيب (بخلاف الإجمالي المعروض) يحتسب نقاط المبادرات أيضاً
   const [rows] = await pool.query(`
     SELECT id, name,
-      (knowledge_points + sports_points + cultural_points + attendance_points
+      (knowledge_points + sports_points + cultural_points + attendance_points + home_tasks_points
         + COALESCE((SELECT SUM(i.points) FROM initiatives i WHERE i.student_id = students.id), 0)
       ) AS total_points
     FROM students
@@ -302,6 +308,40 @@ async function setKnowledgeTaskDone(taskId, done) {
   return { ...rows[0], done: !!rows[0].done };
 }
 
+/* -------- تحديث حالة إنجاز تكليف منزلي — نفس منطق setKnowledgeTaskDone لكن على home_tasks -------- */
+async function setHomeTaskDone(taskId, done) {
+  const [existing] = await pool.query(
+    "SELECT id, student_id, done, points FROM home_tasks WHERE id = ?",
+    [taskId]
+  );
+  if (!existing.length) return null;
+
+  const task = existing[0];
+  const wasDone = !!task.done;
+  const prevPoints = Number(task.points) || 0;
+
+  if (done && !wasDone) {
+    if (prevPoints <= 0) return { error: "لم يتم ضبط نقاط هذا التكليف بعد، اضبطها أولاً من إعدادات النقاط" };
+    await pool.query("UPDATE home_tasks SET done = TRUE WHERE id = ?", [taskId]);
+    await pool.query(
+      "UPDATE students SET home_tasks_points = GREATEST(home_tasks_points + ?, 0) WHERE id = ?",
+      [prevPoints, task.student_id]
+    );
+  } else if (!done && wasDone) {
+    await pool.query("UPDATE home_tasks SET done = FALSE, points = 0 WHERE id = ?", [taskId]);
+    await pool.query(
+      "UPDATE students SET home_tasks_points = GREATEST(home_tasks_points - ?, 0) WHERE id = ?",
+      [prevPoints, task.student_id]
+    );
+  }
+
+  const [rows] = await pool.query(
+    "SELECT id, student_id, title, done, points FROM home_tasks WHERE id = ?",
+    [taskId]
+  );
+  return { ...rows[0], done: !!rows[0].done };
+}
+
 module.exports = {
   getAllStudents,
   getStudentById,
@@ -313,6 +353,7 @@ module.exports = {
   markAttendance,
   getAttendanceForSession,
   setKnowledgeTaskDone,
+  setHomeTaskDone,
   getTopStudentsByCategory,
   getStudentRankOverall,
 };

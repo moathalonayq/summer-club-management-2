@@ -177,7 +177,34 @@
       <div id="knowledgeTasksList" class="knowledge-tasks-list"></div>
       <p class="form-msg" id="tasksMsg"></p>
     </div>
+
+    <!-- إعداد نقاط التكاليف المنزلية عالمياً (نفس القائمة لكل الطلاب) -->
+    <div class="panel-box knowledge-tasks-box">
+      <h4>⚙️ ضبط نقاط التكاليف المنزلية</h4>
+      <p class="section-desc" style="margin-bottom:12px; font-size:13px;">حدد نقاط كل تكليف مرة واحدة — ستُطبَّق على جميع الطلاب عند تحديد إنجازهم</p>
+      <div id="homeTaskConfigList" class="knowledge-tasks-list"></div>
+      <button type="button" id="saveHomeTaskConfigBtn" class="btn btn-primary" style="margin-top:12px; width:100%;">حفظ النقاط</button>
+      <p class="form-msg" id="homeTaskConfigMsg"></p>
+    </div>
     <% } %>
+
+    <!-- =========================================================
+         تقييم التكاليف المنزلية: بحث عن الطالب ووضع صح عند الإنجاز
+         متاحة للإدارة والمشرفين معاً
+         ========================================================= -->
+    <div class="panel-box knowledge-tasks-box">
+      <h4>🏠 تقييم التكاليف المنزلية</h4>
+      <div class="form-group">
+        <label for="homeTasksStudentSearch">اختر الطالب</label>
+        <div class="search-box-wrapper" style="margin-bottom:0;">
+          <input type="text" id="homeTasksStudentSearch" class="search-input" placeholder="اكتب اسم الطالب..." autocomplete="off">
+          <div class="search-results" id="homeTasksStudentResults"></div>
+        </div>
+        <input type="hidden" id="homeTasksStudentSelect">
+      </div>
+      <div id="homeTasksList" class="knowledge-tasks-list"></div>
+      <p class="form-msg" id="homeTasksMsg"></p>
+    </div>
 
     <!-- =========================================================
          مسح الباركود لتسجيل الحضور التلقائي
@@ -244,6 +271,7 @@
             <th class="col-scores">رياضي</th>
             <th class="col-scores">ثقافي</th>
             <th class="col-scores">حضور</th>
+            <th class="col-scores">تكاليف منزلية</th>
             <th class="col-scores">الإجمالي</th>
             <th>الحضور (9 جلسات)</th>
             <th>الباركود</th>
@@ -259,6 +287,7 @@
               <td class="cell-sports col-scores"><%= s.sports_points %></td>
               <td class="cell-cultural col-scores"><%= s.cultural_points %></td>
               <td class="cell-attendance-points col-scores"><%= s.attendance_points %></td>
+              <td class="cell-home-tasks-points col-scores"><%= s.home_tasks_points %></td>
               <td class="cell-total col-scores"><strong><%= s.total_points %></strong></td>
               <td class="cell-attendance">
                 <div class="att-dots">

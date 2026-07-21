@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupPointsForm();
   setupAttendanceForm();
   setupKnowledgeTasksPanel();
+  setupHomeTasksPanel();
   setupBarcodeModal();
   setupScanner();
   setupGlobalToggleScores();
@@ -254,6 +255,9 @@ function setupStudentSearchSelects() {
   setupStudentSearchSelect("attendanceStudentSearch", "attendanceStudentResults", "attendanceStudentSelect", students);
   setupStudentSearchSelect("tasksStudentSearch", "tasksStudentResults", "tasksStudentSelect", students, (id) => {
     loadKnowledgeTasks(id);
+  });
+  setupStudentSearchSelect("homeTasksStudentSearch", "homeTasksStudentResults", "homeTasksStudentSelect", students, (id) => {
+    loadHomeTasks(id);
   });
 }
 
@@ -562,6 +566,138 @@ async function loadKnowledgeTasks(studentId) {
 }
 
 /* =========================================================
+   2.6) تقييم التكاليف المنزلية (متاحة للإدارة والمشرفين معاً)
+   ========================================================= */
+function setupHomeTasksPanel() {
+  loadHomeTaskConfig();
+  const saveBtn = document.getElementById("saveHomeTaskConfigBtn");
+  if (saveBtn) saveBtn.addEventListener("click", saveHomeTaskConfig);
+}
+
+/* تحميل إعدادات نقاط التكاليف المنزلية (إدارة فقط) */
+async function loadHomeTaskConfig() {
+  const configBox = document.getElementById("homeTaskConfigList");
+  if (!configBox) return;
+
+  try {
+    const res = await fetch("/api/supervisor/home-task-config");
+    const data = await res.json();
+    if (!data.success) return;
+
+    configBox.innerHTML = data.config.map((t) => `
+      <div class="task-config-row">
+        <span class="task-config-title">${t.title}${t.description ? ` <small style="opacity:0.7;">— ${t.description}</small>` : ""}</span>
+        <input type="number" class="home-task-config-input" data-title="${t.title}"
+          min="1" placeholder="0" value="${t.points > 0 ? t.points : ""}">
+        <span class="task-points-label">نقطة</span>
+      </div>
+    `).join("");
+  } catch (e) {
+    configBox.innerHTML = `<p class="form-msg error">تعذر تحميل الإعدادات</p>`;
+  }
+}
+
+/* حفظ إعدادات نقاط التكاليف المنزلية عالمياً */
+async function saveHomeTaskConfig() {
+  const inputs = document.querySelectorAll(".home-task-config-input");
+  const saveBtn = document.getElementById("saveHomeTaskConfigBtn");
+  const msg = document.getElementById("homeTaskConfigMsg");
+
+  const configs = Array.from(inputs).map((inp) => ({
+    title: inp.dataset.title,
+    points: Number(inp.value) || 0,
+  }));
+
+  if (configs.some((c) => c.points <= 0)) {
+    showMsg(msg, "أدخل قيمة نقاط لكل تكليف", "error");
+    return;
+  }
+
+  saveBtn.disabled = true;
+  try {
+    const res = await fetch("/api/supervisor/home-task-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ configs }),
+    });
+    const data = await res.json();
+    showMsg(msg, data.success ? "تم حفظ النقاط بنجاح ✅" : "حدث خطأ", data.success ? "success" : "error");
+  } catch (e) {
+    showMsg(msg, "حدث خطأ في الاتصال", "error");
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
+
+/* بحث الطالب ووضع صح على التكاليف المنزلية المُنجزة */
+async function loadHomeTasks(studentId) {
+  const list = document.getElementById("homeTasksList");
+  const msg = document.getElementById("homeTasksMsg");
+  if (!list) return;
+  list.innerHTML = "جارٍ التحميل...";
+  msg.textContent = "";
+
+  try {
+    const res = await fetch(`/api/students/${studentId}`);
+    const data = await res.json();
+
+    if (!data.success) {
+      list.innerHTML = "";
+      showMsg(msg, "تعذر تحميل تكاليف هذا الطالب", "error");
+      return;
+    }
+
+    const tasks = data.student.home_tasks;
+    if (!tasks.length) {
+      list.innerHTML = `<p class="empty-note">لا توجد تكاليف منزلية معرَّفة لهذا الطالب</p>`;
+      return;
+    }
+
+    list.innerHTML = tasks.map((t) => `
+      <div class="task-toggle-item">
+        <input type="checkbox" class="home-task-toggle-checkbox" data-task-id="${t.id}" ${t.done ? "checked" : ""}>
+        <span class="task-toggle-title">${t.title}${t.description ? ` — ${t.description}` : ""}</span>
+        ${t.done && t.points ? `<span class="task-done-points">${t.points} نقطة</span>` : ""}
+      </div>
+    `).join("");
+
+    list.querySelectorAll(".home-task-toggle-checkbox").forEach((checkbox) => {
+      checkbox.addEventListener("change", async () => {
+        const taskId = checkbox.dataset.taskId;
+        const done = checkbox.checked;
+        checkbox.disabled = true;
+        try {
+          const res = await fetch("/api/supervisor/home-tasks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ taskId, done }),
+          });
+          const data = await res.json();
+          if (!data.success) {
+            checkbox.checked = !done;
+            showMsg(msg, data.message || "حدث خطأ", "error");
+          } else {
+            const action = done ? "تم إنجاز" : "تم إلغاء إنجاز";
+            const pts = data.task && data.task.points;
+            showMsg(msg, action + " [" + data.task.title + "]" + (done && pts ? " (+" + pts + " نقطة) ✅" : " ✅"), "success");
+            const sid = document.getElementById("homeTasksStudentSelect").value;
+            if (sid) loadHomeTasks(sid);
+          }
+        } catch (err) {
+          checkbox.checked = !done;
+          showMsg(msg, "حدث خطأ في الاتصال بالخادم", "error");
+        } finally {
+          checkbox.disabled = false;
+        }
+      });
+    });
+  } catch (err) {
+    list.innerHTML = "";
+    showMsg(msg, "حدث خطأ في الاتصال بالخادم", "error");
+  }
+}
+
+/* =========================================================
    مساعد: عرض رسالة نجاح/خطأ في النماذج
    ========================================================= */
 function showMsg(el, text, type) {
@@ -581,6 +717,8 @@ function updateStudentRowInTable(student) {
   row.querySelector(".cell-cultural").textContent = student.cultural_points;
   const attCell = row.querySelector(".cell-attendance-points");
   if (attCell) attCell.textContent = student.attendance_points;
+  const homeCell = row.querySelector(".cell-home-tasks-points");
+  if (homeCell) homeCell.textContent = student.home_tasks_points;
   row.querySelector(".cell-total").innerHTML = `<strong>${student.total_points}</strong>`;
 }
 

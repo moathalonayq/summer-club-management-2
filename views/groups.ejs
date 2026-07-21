@@ -43,12 +43,12 @@
     'الفئة العليا': <%- JSON.stringify(majorGroups.map(g => ({
       id: g.id, name: g.name, category: g.category,
       member_count: g.member_count, total_points: g.total_points, avg_points: g.avg_points,
-      members: g.members.map(m => ({ id: m.id, name: m.name, total_points: m.total_points, knowledge_points: m.knowledge_points, sports_points: m.sports_points, cultural_points: m.cultural_points, attendance_points: m.attendance_points, initiatives_points: m.initiatives_points }))
+      members: g.members.map(m => ({ id: m.id, name: m.name, total_points: m.total_points, knowledge_points: m.knowledge_points, sports_points: m.sports_points, cultural_points: m.cultural_points, attendance_points: m.attendance_points, home_tasks_points: m.home_tasks_points, initiatives_points: m.initiatives_points }))
     }))) %>,
     'الأولوية': <%- JSON.stringify(minorGroups.map(g => ({
       id: g.id, name: g.name, category: g.category,
       member_count: g.member_count, total_points: g.total_points, avg_points: g.avg_points,
-      members: g.members.map(m => ({ id: m.id, name: m.name, total_points: m.total_points, knowledge_points: m.knowledge_points, sports_points: m.sports_points, cultural_points: m.cultural_points, attendance_points: m.attendance_points, initiatives_points: m.initiatives_points }))
+      members: g.members.map(m => ({ id: m.id, name: m.name, total_points: m.total_points, knowledge_points: m.knowledge_points, sports_points: m.sports_points, cultural_points: m.cultural_points, attendance_points: m.attendance_points, home_tasks_points: m.home_tasks_points, initiatives_points: m.initiatives_points }))
     }))) %>
   };
 
@@ -111,12 +111,12 @@
 
     const container = document.getElementById('groupDetailContainer');
     const scoreCols = scoresVisible
-      ? `<th class="col-initiative">🌟 مبادرة</th><th class="col-score">معرفي</th><th class="col-score">رياضي</th><th class="col-score">ترفيهي</th><th class="col-score">حضور</th><th class="col-total">الإجمالي</th>`
+      ? `<th class="col-initiative">🌟 مبادرة</th><th class="col-score">معرفي</th><th class="col-score">رياضي</th><th class="col-score">ترفيهي</th><th class="col-score">حضور</th><th class="col-score">تكاليف منزلية</th><th class="col-total">الإجمالي</th>`
       : '';
     const rows = group.members.map((m, i) => {
       const rowClass = i === 0 ? 'rank-gold-row' : i === 1 ? 'rank-silver-row' : i === 2 ? 'rank-bronze-row' : '';
       const scoreCells = scoresVisible
-        ? `<td class="col-initiative">${m.initiatives_points > 0 ? '+' + m.initiatives_points : '—'}</td><td class="col-score">${m.knowledge_points}</td><td class="col-score">${m.sports_points}</td><td class="col-score">${m.cultural_points}</td><td class="col-score">${m.attendance_points}</td><td class="col-total"><strong>${m.total_points}</strong></td>`
+        ? `<td class="col-initiative">${m.initiatives_points > 0 ? '+' + m.initiatives_points : '—'}</td><td class="col-score">${m.knowledge_points}</td><td class="col-score">${m.sports_points}</td><td class="col-score">${m.cultural_points}</td><td class="col-score">${m.attendance_points}</td><td class="col-score">${m.home_tasks_points}</td><td class="col-total"><strong>${m.total_points}</strong></td>`
         : '';
       return `
         <tr class="${rowClass}">

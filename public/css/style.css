@@ -964,7 +964,8 @@ input, select { font-family: inherit; }
 
 .task-toggle-item:last-child { border-bottom: none; }
 
-.task-toggle-checkbox {
+.task-toggle-checkbox,
+.home-task-toggle-checkbox {
   width: 18px;
   height: 18px;
   accent-color: var(--success);
@@ -1421,7 +1422,8 @@ input, select { font-family: inherit; }
 }
 .task-config-row:last-child { border-bottom: none; }
 .task-config-title { flex: 1; font-size: 14px; color: var(--ink); }
-.task-config-input {
+.task-config-input,
+.home-task-config-input {
   width: 75px;
   padding: 5px 8px;
   border: 1.5px solid var(--cream-dark);
@@ -1429,7 +1431,8 @@ input, select { font-family: inherit; }
   font-size: 13px;
   text-align: center;
 }
-.task-config-input:focus { border-color: var(--teal); outline: none; }
+.task-config-input:focus,
+.home-task-config-input:focus { border-color: var(--teal); outline: none; }
 .task-config-group-title {
   margin: 14px 0 4px;
   font-size: 13px;

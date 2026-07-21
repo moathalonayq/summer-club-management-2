@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS weekly_points_archive;
 DROP TABLE IF EXISTS initiatives;
 DROP TABLE IF EXISTS knowledge_tasks;
+DROP TABLE IF EXISTS home_tasks;
 DROP TABLE IF EXISTS activity_log;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS `groups`;
@@ -42,6 +43,7 @@ CREATE TABLE students (
   sports_points INT NOT NULL DEFAULT 0,
   cultural_points INT NOT NULL DEFAULT 0,
   attendance_points INT NOT NULL DEFAULT 0,
+  home_tasks_points INT NOT NULL DEFAULT 0,
   guardian_phone VARCHAR(20),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_students_group FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
@@ -60,6 +62,21 @@ CREATE TABLE knowledge_tasks (
   points INT NOT NULL DEFAULT 0,
   CONSTRAINT fk_tasks_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   INDEX idx_tasks_student (student_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =========================================================
+-- جدول التكاليف المنزلية — نفس القائمة لكل الطلاب بلا استثناء
+-- (بخلاف متطلبات البرنامج المعرفي التي تختلف حسب المرحلة)
+-- =========================================================
+CREATE TABLE home_tasks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  description VARCHAR(300) NULL,
+  done BOOLEAN NOT NULL DEFAULT FALSE,
+  points INT NOT NULL DEFAULT 0,
+  CONSTRAINT fk_home_tasks_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  INDEX idx_home_tasks_student (student_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================================

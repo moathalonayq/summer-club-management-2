@@ -266,6 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const att        = getAttendanceRate(student.attendance);
     const doneTasks  = student.knowledge_tasks.filter(t => t.done).length;
     const totalTasks = student.knowledge_tasks.length;
+    const doneHomeTasks  = student.home_tasks.filter(t => t.done).length;
+    const totalHomeTasks = student.home_tasks.length;
 
     const recordedSessions = student.attendance.filter(a => a.status !== null);
     const lastStatus = recordedSessions.length
@@ -387,6 +389,21 @@ document.addEventListener("DOMContentLoaded", () => {
               <li class="${t.done ? "task-done" : "task-pending"}">
                 <span class="task-icon">${t.done ? "✅" : "⭕"}</span>
                 <span>${t.title}</span>
+                ${t.done && t.points ? `<span class="task-pts-badge">+${t.points}</span>` : ""}
+              </li>
+            `).join("")}
+          </ul>
+        </div>
+
+        <!-- التكاليف المنزلية -->
+        <div class="section-block">
+          <h4>🏠 التكاليف المنزلية</h4>
+          ${progressBar(doneHomeTasks, totalHomeTasks, "bar-knowledge")}
+          <ul class="task-list" style="margin-top:10px;">
+            ${student.home_tasks.map(t => `
+              <li class="${t.done ? "task-done" : "task-pending"}">
+                <span class="task-icon">${t.done ? "✅" : "⭕"}</span>
+                <span>${t.title}${t.description ? ` <small style="opacity:0.7;">— ${t.description}</small>` : ""}</span>
                 ${t.done && t.points ? `<span class="task-pts-badge">+${t.points}</span>` : ""}
               </li>
             `).join("")}

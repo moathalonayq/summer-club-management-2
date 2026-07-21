@@ -54,6 +54,12 @@ const KNOWLEDGE_TASKS_BY_CATEGORY = {
   ],
 };
 
+// التكاليف المنزلية: نفس القائمة لكل الطلاب بلا استثناء (أولية وعليا)
+const HOME_TASKS_TEMPLATE = [
+  { title: "اذكار الصباح", description: "الأسبوع الثاني" },
+  { title: "اذكار المساء", description: "الأسبوع الثالث" },
+];
+
 function generateBarcodeId(index) {
   const year = new Date().getFullYear();
   return `QC${year}${String(index).padStart(4, "0")}`;
@@ -128,6 +134,14 @@ async function run() {
         await connection.query(
           "INSERT INTO knowledge_tasks (student_id, title, done) VALUES (?, ?, FALSE)",
           [studentId, taskTitle]
+        );
+      }
+
+      // التكاليف المنزلية — نفس القائمة لكل الطلاب بلا استثناء
+      for (const { title, description } of HOME_TASKS_TEMPLATE) {
+        await connection.query(
+          "INSERT INTO home_tasks (student_id, title, description, done) VALUES (?, ?, ?, FALSE)",
+          [studentId, title, description]
         );
       }
 
