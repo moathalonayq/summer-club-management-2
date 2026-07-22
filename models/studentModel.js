@@ -417,6 +417,39 @@ async function moveStudentGroup(studentId, groupId, name) {
   return getStudentById(studentId);
 }
 
+/* -------- حذف طالب نهائياً مع كل بياناته المرتبطة (يُحدَّد بالاسم + الأسرة) -------- */
+async function deleteStudent(name, groupId) {
+  const normalized = normalizeArabic((name || "").trim());
+  const [matches] = await pool.query(
+    "SELECT id FROM students WHERE group_id = ? AND name_normalized = ?",
+    [groupId, normalized]
+  );
+  if (!matches.length) return { error: "لم يتم العثور على طالب بهذا الاسم في هذه الأسرة" };
+  if (matches.length > 1) return { error: "يوجد أكثر من طالب بنفس الاسم في هذه الأسرة، تواصل مع الدعم" };
+
+  const studentId = matches[0].id;
+  const student = await getStudentById(studentId);
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query("DELETE FROM attendance WHERE student_id = ?", [studentId]);
+    await conn.query("DELETE FROM knowledge_tasks WHERE student_id = ?", [studentId]);
+    await conn.query("DELETE FROM home_tasks WHERE student_id = ?", [studentId]);
+    await conn.query("DELETE FROM initiatives WHERE student_id = ?", [studentId]);
+    await conn.query("DELETE FROM weekly_points_archive WHERE student_id = ?", [studentId]);
+    await conn.query("DELETE FROM students WHERE id = ?", [studentId]);
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+
+  return student;
+}
+
 module.exports = {
   getAllStudents,
   getStudentById,
@@ -431,6 +464,7 @@ module.exports = {
   setHomeTaskDone,
   createStudent,
   moveStudentGroup,
+  deleteStudent,
   getTopStudentsByCategory,
   getStudentRankOverall,
 };

@@ -218,6 +218,32 @@ async function moveStudent(req, res, next) {
   }
 }
 
+/* -------- API: حذف طالب نهائياً (اسم + أسرة للتأكيد) — إدارة فقط -------- */
+async function deleteStudent(req, res, next) {
+  try {
+    const name = (req.body.name || "").trim();
+    const groupId = Number(req.body.groupId);
+
+    if (!name || !groupId) {
+      return res.status(400).json({ success: false, message: "أدخل اسم الطالب واختر الأسرة" });
+    }
+
+    const student = await studentModel.deleteStudent(name, groupId);
+    if (student && student.error) {
+      return res.status(400).json({ success: false, message: student.error });
+    }
+
+    await pool.query(
+      "INSERT INTO activity_log (action) VALUES (?)",
+      [`حذف الطالب: ${student.name} (${student.group_name})`]
+    );
+
+    res.json({ success: true, student });
+  } catch (err) {
+    next(err);
+  }
+}
+
 /* -------- API: إضافة أو خصم نقاط لطالب -------- */
 async function addPoints(req, res, next) {
   try {
@@ -518,6 +544,7 @@ module.exports = {
   showAttendanceCards,
   addStudent,
   moveStudent,
+  deleteStudent,
   addPoints,
   markAttendanceManual,
   scanBarcodeAttendance,

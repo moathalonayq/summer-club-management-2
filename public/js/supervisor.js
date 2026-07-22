@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAttendanceListByFamily();
   setupArchiveWeekBtn();
   setupAddStudentForm();
+  setupDeleteStudentForm();
   setupMoveStudentForm();
   autoStartScanIfRequested();
 });
@@ -63,6 +64,56 @@ function setupAddStudentForm() {
         return;
       }
       showMsg(msg, `✅ تمت إضافة "${data.student.name}" إلى ${data.student.group_name} (باركود: ${data.student.barcode})`, "success");
+      nameInput.value = "";
+      groupSelect.value = "";
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      showMsg(msg, "حدث خطأ في الاتصال بالخادم", "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+/* =========================================================
+   0.15) حذف طالب (إدارة فقط)
+   ========================================================= */
+function setupDeleteStudentForm() {
+  const btn = document.getElementById("deleteStudentBtn");
+  const msg = document.getElementById("deleteStudentMsg");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const nameInput = document.getElementById("deleteStudentName");
+    const groupSelect = document.getElementById("deleteStudentGroup");
+    const name = nameInput.value.trim();
+    const groupId = groupSelect.value;
+
+    if (!name) {
+      showMsg(msg, "أدخل اسم الطالب", "error");
+      return;
+    }
+    if (!groupId) {
+      showMsg(msg, "اختر الأسرة", "error");
+      return;
+    }
+    if (!confirm(`هل أنت متأكد من حذف الطالب "${name}" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`)) {
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/supervisor/students/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, groupId }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showMsg(msg, data.message || "حدث خطأ", "error");
+        return;
+      }
+      showMsg(msg, `✅ تم حذف "${data.student.name}" من ${data.student.group_name}`, "success");
       nameInput.value = "";
       groupSelect.value = "";
       setTimeout(() => location.reload(), 1500);

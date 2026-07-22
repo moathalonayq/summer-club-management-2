@@ -496,6 +496,13 @@ input, select { font-family: inherit; }
 }
 .btn-danger-outline:hover { background: var(--danger); color: var(--white); }
 
+.btn-danger {
+  background: var(--danger);
+  border: 1.5px solid var(--danger);
+  color: var(--white);
+}
+.btn-danger:hover { opacity: 0.9; }
+
 .btn-small { padding: 8px 16px; font-size: 13px; }
 
 .btn-show-barcode {
