@@ -186,6 +186,37 @@ async function addStudent(req, res, next) {
   }
 }
 
+/* -------- API: نقل طالب موجود إلى أسرة أخرى — إدارة فقط -------- */
+async function moveStudent(req, res, next) {
+  try {
+    const studentId = Number(req.body.studentId);
+    const groupId = Number(req.body.groupId);
+
+    if (!studentId || !groupId) {
+      return res.status(400).json({ success: false, message: "اختر الطالب والأسرة" });
+    }
+
+    const before = await studentModel.getStudentById(studentId);
+    if (!before) {
+      return res.status(400).json({ success: false, message: "الطالب غير موجود" });
+    }
+
+    const student = await studentModel.moveStudentGroup(studentId, groupId);
+    if (student && student.error) {
+      return res.status(400).json({ success: false, message: student.error });
+    }
+
+    await pool.query(
+      "INSERT INTO activity_log (action) VALUES (?)",
+      [`نقل الطالب ${student.name} من ${before.group_name} إلى ${student.group_name}`]
+    );
+
+    res.json({ success: true, student });
+  } catch (err) {
+    next(err);
+  }
+}
+
 /* -------- API: إضافة أو خصم نقاط لطالب -------- */
 async function addPoints(req, res, next) {
   try {
@@ -485,6 +516,7 @@ module.exports = {
   showPanel,
   showAttendanceCards,
   addStudent,
+  moveStudent,
   addPoints,
   markAttendanceManual,
   scanBarcodeAttendance,

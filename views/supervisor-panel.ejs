@@ -35,6 +35,29 @@
       <button type="button" id="addStudentBtn" class="btn btn-gold" style="width:100%;">إضافة الطالب</button>
       <p class="form-msg" id="addStudentMsg"></p>
     </div>
+
+    <div class="panel-box" style="margin-bottom:18px;">
+      <h4 style="margin-top:0;">🔀 نقل طالب إلى أسرة أخرى</h4>
+      <div class="form-group">
+        <label for="moveStudentSearch">اختر الطالب</label>
+        <div class="search-box-wrapper" style="margin-bottom:0;">
+          <input type="text" id="moveStudentSearch" class="search-input" placeholder="اكتب اسم الطالب..." autocomplete="off">
+          <div class="search-results" id="moveStudentResults"></div>
+        </div>
+        <input type="hidden" id="moveStudentSelect">
+      </div>
+      <div class="form-group">
+        <label for="moveStudentGroup">الأسرة الجديدة</label>
+        <select id="moveStudentGroup" class="form-select">
+          <option value="">اختر الأسرة</option>
+          <% groups.forEach(g => { %>
+            <option value="<%= g.id %>"><%= g.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <button type="button" id="moveStudentBtn" class="btn btn-gold" style="width:100%;">نقل الطالب</button>
+      <p class="form-msg" id="moveStudentMsg"></p>
+    </div>
     <% } %>
 
     <!-- =========================================================

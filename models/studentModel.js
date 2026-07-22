@@ -397,6 +397,19 @@ async function createStudent(name, groupId) {
   return getStudentById(studentId);
 }
 
+/* -------- نقل طالب موجود إلى أسرة أخرى (تصحيح توزيع) -------- */
+async function moveStudentGroup(studentId, groupId) {
+  const [groupRows] = await pool.query("SELECT id, category FROM `groups` WHERE id = ?", [groupId]);
+  if (!groupRows.length) return { error: "المجموعة غير موجودة" };
+
+  const [studentRows] = await pool.query("SELECT id FROM students WHERE id = ?", [studentId]);
+  if (!studentRows.length) return { error: "الطالب غير موجود" };
+
+  await pool.query("UPDATE students SET group_id = ? WHERE id = ?", [groupId, studentId]);
+
+  return getStudentById(studentId);
+}
+
 module.exports = {
   getAllStudents,
   getStudentById,
@@ -410,6 +423,7 @@ module.exports = {
   setKnowledgeTaskDone,
   setHomeTaskDone,
   createStudent,
+  moveStudentGroup,
   getTopStudentsByCategory,
   getStudentRankOverall,
 };

@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAttendanceListByFamily();
   setupArchiveWeekBtn();
   setupAddStudentForm();
+  setupMoveStudentForm();
   autoStartScanIfRequested();
 });
 
@@ -63,6 +64,53 @@ function setupAddStudentForm() {
       }
       showMsg(msg, `✅ تمت إضافة "${data.student.name}" إلى ${data.student.group_name} (باركود: ${data.student.barcode})`, "success");
       nameInput.value = "";
+      groupSelect.value = "";
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      showMsg(msg, "حدث خطأ في الاتصال بالخادم", "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+/* =========================================================
+   0.2) نقل طالب موجود إلى أسرة أخرى (إدارة فقط)
+   ========================================================= */
+function setupMoveStudentForm() {
+  const btn = document.getElementById("moveStudentBtn");
+  const msg = document.getElementById("moveStudentMsg");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const studentId = document.getElementById("moveStudentSelect").value;
+    const groupSelect = document.getElementById("moveStudentGroup");
+    const groupId = groupSelect.value;
+
+    if (!studentId) {
+      showMsg(msg, "اختر الطالب", "error");
+      return;
+    }
+    if (!groupId) {
+      showMsg(msg, "اختر الأسرة الجديدة", "error");
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/supervisor/students/move", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId, groupId }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showMsg(msg, data.message || "حدث خطأ", "error");
+        return;
+      }
+      showMsg(msg, `✅ تم نقل "${data.student.name}" إلى ${data.student.group_name}`, "success");
+      document.getElementById("moveStudentSearch").value = "";
+      document.getElementById("moveStudentSelect").value = "";
       groupSelect.value = "";
       setTimeout(() => location.reload(), 1500);
     } catch (e) {
@@ -307,6 +355,7 @@ function setupStudentSearchSelects() {
   setupStudentSearchSelect("homeTasksStudentSearch", "homeTasksStudentResults", "homeTasksStudentSelect", students, (id) => {
     loadHomeTasks(id);
   });
+  setupStudentSearchSelect("moveStudentSearch", "moveStudentResults", "moveStudentSelect", students);
 }
 
 function setupStudentSearchSelect(inputId, resultsId, hiddenId, students, onSelect) {

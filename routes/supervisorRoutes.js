@@ -16,6 +16,7 @@ router.get("/supervisor/points-archive", requireSupervisorPage, supervisorContro
 
 /* -------- API (محمية بجلسة المشرف) -------- */
 router.post("/api/supervisor/students", requireAdminApi, supervisorController.addStudent);
+router.post("/api/supervisor/students/move", requireAdminApi, supervisorController.moveStudent);
 router.post("/api/supervisor/points", requireSupervisorApi, supervisorController.addPoints);
 router.post("/api/supervisor/attendance", requireSupervisorApi, supervisorController.markAttendanceManual);
 router.post("/api/supervisor/scan", requireSupervisorApi, supervisorController.scanBarcodeAttendance);
