@@ -191,6 +191,7 @@ async function moveStudent(req, res, next) {
   try {
     const studentId = Number(req.body.studentId);
     const groupId = Number(req.body.groupId);
+    const name = (req.body.name || "").trim();
 
     if (!studentId || !groupId) {
       return res.status(400).json({ success: false, message: "اختر الطالب والأسرة" });
@@ -201,7 +202,7 @@ async function moveStudent(req, res, next) {
       return res.status(400).json({ success: false, message: "الطالب غير موجود" });
     }
 
-    const student = await studentModel.moveStudentGroup(studentId, groupId);
+    const student = await studentModel.moveStudentGroup(studentId, groupId, name);
     if (student && student.error) {
       return res.status(400).json({ success: false, message: student.error });
     }

@@ -397,15 +397,22 @@ async function createStudent(name, groupId) {
   return getStudentById(studentId);
 }
 
-/* -------- نقل طالب موجود إلى أسرة أخرى (تصحيح توزيع) -------- */
-async function moveStudentGroup(studentId, groupId) {
+/* -------- نقل طالب موجود إلى أسرة أخرى (تصحيح توزيع)، مع إمكانية تصحيح الاسم -------- */
+async function moveStudentGroup(studentId, groupId, name) {
   const [groupRows] = await pool.query("SELECT id, category FROM `groups` WHERE id = ?", [groupId]);
   if (!groupRows.length) return { error: "المجموعة غير موجودة" };
 
   const [studentRows] = await pool.query("SELECT id FROM students WHERE id = ?", [studentId]);
   if (!studentRows.length) return { error: "الطالب غير موجود" };
 
-  await pool.query("UPDATE students SET group_id = ? WHERE id = ?", [groupId, studentId]);
+  if (name && name.trim()) {
+    await pool.query(
+      "UPDATE students SET group_id = ?, name = ?, name_normalized = ? WHERE id = ?",
+      [groupId, name.trim(), normalizeArabic(name.trim()), studentId]
+    );
+  } else {
+    await pool.query("UPDATE students SET group_id = ? WHERE id = ?", [groupId, studentId]);
+  }
 
   return getStudentById(studentId);
 }
