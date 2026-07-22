@@ -405,6 +405,10 @@ function setupPointsForm() {
       return;
     }
 
+    await sendPointsRequest({ studentId, program, amount, reason, mode, studentName, msg });
+  }
+
+  async function sendPointsRequest({ studentId, program, amount, reason, mode, studentName, msg }) {
     try {
       const res = await fetch("/api/supervisor/points", {
         method: "POST",
@@ -419,9 +423,21 @@ function setupPointsForm() {
       }
 
       const actionLabel = mode === "subtract" ? "خصم" : "إضافة";
-      showMsg(msg, `تم ${actionLabel} ${amount} نقطة لـ ${studentName} بنجاح ✅`, "success");
+      msg.className = "form-msg success";
+      msg.innerHTML = `تم ${actionLabel} ${amount} نقطة لـ ${studentName} بنجاح ✅ <button type="button" class="btn-undo-points">↩️ تراجع</button>`;
       document.getElementById("pointsAmount").value = "";
       document.getElementById("pointsReason").value = "";
+
+      const undoBtn = msg.querySelector(".btn-undo-points");
+      undoBtn.addEventListener("click", async () => {
+        undoBtn.disabled = true;
+        const reverseMode = mode === "subtract" ? "add" : "subtract";
+        await sendPointsRequest({
+          studentId, program, amount,
+          reason: "تراجع عن آخر عملية",
+          mode: reverseMode, studentName, msg,
+        });
+      }, { once: true });
 
       updateStudentRowInTable(data.student);
     } catch (err) {

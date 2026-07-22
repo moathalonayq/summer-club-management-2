@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ${student.initiatives.map(i => `
                 <li>
                   <span>${i.title}</span>
-                  <span class="initiative-points">${i.points >= 0 ? "+" : ""}${i.points} نقطة</span>
+                  <span class="initiative-points ${i.points < 0 ? 'initiative-negative' : ''}">${i.points >= 0 ? "+" : ""}${i.points} نقطة</span>
                   <span class="initiative-date">${formatDateArabic(i.created_at)}</span>
                 </li>
               `).join("")}
