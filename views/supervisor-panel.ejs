@@ -14,6 +14,30 @@
     <script type="application/json" id="studentsDataJson"><%- JSON.stringify(students.map(s => ({ id: s.id, name: s.name, group: s.group_name }))) %></script>
 
     <!-- =========================================================
+         إضافة طالب جديد — إدارة فقط
+         ========================================================= -->
+    <% if (role === 'admin') { %>
+    <div class="panel-box" style="margin-bottom:18px;">
+      <h4 style="margin-top:0;">➕ إضافة طالب جديد</h4>
+      <div class="form-group">
+        <label for="newStudentName">اسم الطالب</label>
+        <input type="text" id="newStudentName" class="form-input" placeholder="اكتب اسم الطالب...">
+      </div>
+      <div class="form-group">
+        <label for="newStudentGroup">الأسرة</label>
+        <select id="newStudentGroup" class="form-select">
+          <option value="">اختر الأسرة</option>
+          <% groups.forEach(g => { %>
+            <option value="<%= g.id %>"><%= g.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <button type="button" id="addStudentBtn" class="btn btn-gold" style="width:100%;">إضافة الطالب</button>
+      <p class="form-msg" id="addStudentMsg"></p>
+    </div>
+    <% } %>
+
+    <!-- =========================================================
          قائمة الحضور بالجملة: أزرار الأسر حسب الفئة
          ========================================================= -->
     <div class="panel-box" style="margin-bottom:18px;">

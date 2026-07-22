@@ -22,8 +22,56 @@ document.addEventListener("DOMContentLoaded", () => {
   setupGlobalToggleScores();
   setupAttendanceListByFamily();
   setupArchiveWeekBtn();
+  setupAddStudentForm();
   autoStartScanIfRequested();
 });
+
+/* =========================================================
+   0.1) إضافة طالب جديد (إدارة فقط)
+   ========================================================= */
+function setupAddStudentForm() {
+  const btn = document.getElementById("addStudentBtn");
+  const msg = document.getElementById("addStudentMsg");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const nameInput = document.getElementById("newStudentName");
+    const groupSelect = document.getElementById("newStudentGroup");
+    const name = nameInput.value.trim();
+    const groupId = groupSelect.value;
+
+    if (!name) {
+      showMsg(msg, "أدخل اسم الطالب", "error");
+      return;
+    }
+    if (!groupId) {
+      showMsg(msg, "اختر الأسرة", "error");
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/supervisor/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, groupId }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        showMsg(msg, data.message || "حدث خطأ", "error");
+        return;
+      }
+      showMsg(msg, `✅ تمت إضافة "${data.student.name}" إلى ${data.student.group_name} (باركود: ${data.student.barcode})`, "success");
+      nameInput.value = "";
+      groupSelect.value = "";
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      showMsg(msg, "حدث خطأ في الاتصال بالخادم", "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
 
 /* =========================================================
    0.3) قائمة الحضور بالجملة: أزرار الأسر حسب الفئة

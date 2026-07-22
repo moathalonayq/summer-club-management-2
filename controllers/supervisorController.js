@@ -160,6 +160,32 @@ async function showPanel(req, res, next) {
   }
 }
 
+/* -------- API: إضافة طالب جديد (اسم + أسرة فقط) — إدارة فقط -------- */
+async function addStudent(req, res, next) {
+  try {
+    const name = (req.body.name || "").trim();
+    const groupId = Number(req.body.groupId);
+
+    if (!name || !groupId) {
+      return res.status(400).json({ success: false, message: "أدخل اسم الطالب واختر الأسرة" });
+    }
+
+    const student = await studentModel.createStudent(name, groupId);
+    if (student && student.error) {
+      return res.status(400).json({ success: false, message: student.error });
+    }
+
+    await pool.query(
+      "INSERT INTO activity_log (action) VALUES (?)",
+      [`إضافة طالب جديد: ${name} (${student.group_name})`]
+    );
+
+    res.json({ success: true, student });
+  } catch (err) {
+    next(err);
+  }
+}
+
 /* -------- API: إضافة أو خصم نقاط لطالب -------- */
 async function addPoints(req, res, next) {
   try {
@@ -458,6 +484,7 @@ module.exports = {
   handleLogout,
   showPanel,
   showAttendanceCards,
+  addStudent,
   addPoints,
   markAttendanceManual,
   scanBarcodeAttendance,

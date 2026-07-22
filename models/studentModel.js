@@ -342,6 +342,61 @@ async function setHomeTaskDone(taskId, done) {
   return { ...rows[0], done: !!rows[0].done };
 }
 
+const KNOWLEDGE_TASKS_BY_CATEGORY = {
+  "الأولوية": [
+    "قول كلمة طيبة بالمنزل",
+    "تسميع سورة الفاتحة غيباً",
+    "القيام بعمل تعاوني بالمنزل",
+  ],
+  "الفئة العليا": [
+    "ما هو الذكاء الاصطناعي",
+    "نجرب الأدوات",
+    "ابدع وفكر بنقد",
+    "مشروع ومهاراتي",
+  ],
+};
+const HOME_TASKS_TEMPLATE = [
+  { title: "اذكار الصباح", description: "الأسبوع الثاني" },
+  { title: "اذكار المساء", description: "الأسبوع الثالث" },
+];
+const HOME_TASK_POINTS = 25;
+
+/* -------- إنشاء طالب جديد (من لوحة الإدارة) مع باركود فريد ومتطلباته/تكاليفه الأولية -------- */
+async function createStudent(name, groupId) {
+  const [groupRows] = await pool.query("SELECT id, category FROM `groups` WHERE id = ?", [groupId]);
+  if (!groupRows.length) return { error: "المجموعة غير موجودة" };
+  const category = groupRows[0].category;
+
+  const [maxRows] = await pool.query(
+    "SELECT MAX(CAST(SUBSTRING(barcode, 7) AS UNSIGNED)) AS maxIdx FROM students WHERE barcode LIKE 'QC%'"
+  );
+  const year = new Date().getFullYear();
+  const nextIndex = (maxRows[0].maxIdx || 0) + 1;
+  const barcode = `QC${year}${String(nextIndex).padStart(4, "0")}`;
+
+  const [result] = await pool.query(
+    `INSERT INTO students (barcode, name, name_normalized, group_id, knowledge_points, sports_points, cultural_points, attendance_points, home_tasks_points)
+     VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0)`,
+    [barcode, name, normalizeArabic(name), groupId]
+  );
+  const studentId = result.insertId;
+
+  for (const taskTitle of KNOWLEDGE_TASKS_BY_CATEGORY[category]) {
+    await pool.query(
+      "INSERT INTO knowledge_tasks (student_id, title, done) VALUES (?, ?, FALSE)",
+      [studentId, taskTitle]
+    );
+  }
+  for (const { title, description } of HOME_TASKS_TEMPLATE) {
+    await pool.query(
+      "INSERT INTO home_tasks (student_id, title, description, done, points) VALUES (?, ?, ?, FALSE, ?)",
+      [studentId, title, description, HOME_TASK_POINTS]
+    );
+  }
+
+  return getStudentById(studentId);
+}
+
 module.exports = {
   getAllStudents,
   getStudentById,
@@ -354,6 +409,7 @@ module.exports = {
   getAttendanceForSession,
   setKnowledgeTaskDone,
   setHomeTaskDone,
+  createStudent,
   getTopStudentsByCategory,
   getStudentRankOverall,
 };

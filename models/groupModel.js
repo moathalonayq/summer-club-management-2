@@ -5,25 +5,36 @@
 
 const pool = require("../config/db");
 
-/* -------- كل المجموعات مع إحصائياتها مرتبة حسب الإجمالي -------- */
+/* -------- كل المجموعات مع إحصائياتها مرتبة حسب متوسط نقاط الطالب --------
+   "إجمالي المجموعة" هنا هو متوسط نقاط أعضائها (إجمالي نقاط المجموعة ÷ عدد
+   طلابها) وليس مجموع النقاط الخام، حتى لا تتأثر المجموعات الأقل عدداً
+   بالمقارنة مع المجموعات الأكبر */
 async function getRankedGroups() {
   const [rows] = await pool.query(`
     SELECT
       g.id, g.name, g.category,
       COUNT(s.id) AS member_count,
-      COALESCE(SUM(s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points), 0) AS total_points
+      COALESCE(SUM(s.knowledge_points + s.sports_points + s.cultural_points + s.attendance_points + s.home_tasks_points), 0) AS raw_total_points
     FROM \`groups\` g
     LEFT JOIN students s ON s.group_id = g.id
     GROUP BY g.id, g.name, g.category
-    ORDER BY total_points DESC
   `);
 
-  return rows.map((g) => ({
-    ...g,
-    member_count: Number(g.member_count),
-    total_points: Number(g.total_points),
-    avg_points: g.member_count > 0 ? Math.round(Number(g.total_points) / Number(g.member_count)) : 0,
-  }));
+  return rows
+    .map((g) => {
+      const memberCount = Number(g.member_count);
+      const rawTotal = Number(g.raw_total_points);
+      const avgPoints = memberCount > 0 ? Math.round(rawTotal / memberCount) : 0;
+      return {
+        id: g.id,
+        name: g.name,
+        category: g.category,
+        member_count: memberCount,
+        total_points: avgPoints,
+        avg_points: avgPoints,
+      };
+    })
+    .sort((a, b) => b.total_points - a.total_points);
 }
 
 /* -------- نفس getRankedGroups لكن مجمَّعة حسب الفئة (الصغرى/العليا) لعرضها بقسمين -------- */
