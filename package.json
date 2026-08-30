@@ -4,7 +4,7 @@
   "description": "موقع نادي القيروان - منصة متابعة الطلاب والبرامج",
   "main": "app.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node app.js",
     "dev": "nodemon app.js",
     "seed": "node config/seed.js",
     "test": "cross-env NODE_ENV=test jest --runInBand",
