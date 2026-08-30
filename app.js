@@ -25,6 +25,9 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+/* -------- الوثوق بالبروكسي (مهم لمنصة Render وغيرها) -------- */
+app.set('trust proxy', 1);
+
 /* -------- الملفات الثابتة (CSS / JS / صور) -------- */
 app.use(express.static(path.join(__dirname, "public")));
 
