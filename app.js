@@ -66,7 +66,7 @@ app.get("/api/health", async (req, res) => {
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
     dbHost: process.env.DATABASE_URL
       ? (function() { try { return new URL(process.env.DATABASE_URL).hostname; } catch(e) { return "invalid-url"; } })()
-      : (process.env.DB_HOST || "localhost"),
+      : (process.env.DB_HOST || process.env.Host || "localhost"),
   };
 
   try {

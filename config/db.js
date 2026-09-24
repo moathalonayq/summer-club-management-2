@@ -41,16 +41,24 @@ if (process.env.DATABASE_URL) {
 }
 
 if (!poolConfig) {
-  const isLocal = !process.env.DB_HOST || process.env.DB_HOST === "localhost" || process.env.DB_HOST === "127.0.0.1";
+  const host = process.env.DB_HOST || process.env.Host || process.env.DB_HOSTNAME || "localhost";
+  const port = Number(process.env.DB_PORT || process.env.Port) || 3306;
+  const user = process.env.DB_USER || process.env.User || "root";
+  const password = process.env.DB_PASSWORD || process.env.Password || "";
+  const database = process.env.DB_NAME || process.env.Database_name || process.env.DB_DATABASE || "qayrawan_club";
+
+  const isLocal = !host || host === "localhost" || host === "127.0.0.1";
+  const wantsSSL = process.env.DB_SSL === "true" ||
+    process.env.SSL_mode === "REQUIRED" ||
+    (!isLocal && process.env.DB_SSL !== "false");
+
   poolConfig = {
-    host: process.env.DB_HOST || "localhost",
-    port: Number(process.env.DB_PORT) || 3306,
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
-    database: process.env.DB_NAME || "qayrawan_club",
-    ssl: (process.env.DB_SSL === "true" || (!isLocal && process.env.DB_SSL !== "false"))
-      ? { rejectUnauthorized: false }
-      : undefined,
+    host,
+    port,
+    user,
+    password,
+    database,
+    ssl: wantsSSL ? { rejectUnauthorized: false } : undefined,
   };
 }
 
