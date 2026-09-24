@@ -56,6 +56,37 @@ app.use("/", groupRoutes);
 app.use("/", supervisorRoutes);
 app.use("/", displayRoutes);
 
+const pool = require("./config/db");
+
+/* -------- فحص الاتصال وصحة الخادم (Health Check) -------- */
+app.get("/api/health", async (req, res) => {
+  const statusInfo = {
+    status: "ok",
+    nodeEnv: process.env.NODE_ENV,
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+    dbHost: process.env.DATABASE_URL
+      ? (function() { try { return new URL(process.env.DATABASE_URL).hostname; } catch(e) { return "invalid-url"; } })()
+      : (process.env.DB_HOST || "localhost"),
+  };
+
+  try {
+    const [rows] = await pool.query("SELECT 1 AS ok");
+    statusInfo.database = "connected";
+    return res.json(statusInfo);
+  } catch (err) {
+    statusInfo.status = "error";
+    statusInfo.database = "disconnected";
+    statusInfo.error = {
+      message: err.message,
+      code: err.code,
+      errno: err.errno,
+      syscall: err.syscall,
+      fatal: err.fatal,
+    };
+    return res.status(500).json(statusInfo);
+  }
+});
+
 /* -------- صفحة 404 -------- */
 app.use((req, res) => {
   res.status(404).render("404", { pageTitle: "الصفحة غير موجودة", activeNav: "" });
@@ -64,6 +95,17 @@ app.use((req, res) => {
 /* -------- معالج الأخطاء العام -------- */
 app.use((err, req, res, next) => {
   console.error("❌ خطأ في التطبيق:", err);
+
+  // إرجاع JSON لمسارات API وطلبات Ajax
+  if (req.xhr || (req.headers.accept && req.headers.accept.includes("json")) || req.path.startsWith("/api/")) {
+    return res.status(500).json({
+      success: false,
+      message: process.env.NODE_ENV === "production"
+        ? "حدث خطأ في الخادم، يرجى المحاولة لاحقاً"
+        : err.message,
+    });
+  }
+
   res.status(500).render("error", {
     pageTitle: "حدث خطأ",
     activeNav: "",
